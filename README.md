@@ -2,7 +2,13 @@
 
 Link to the [course] and to its [general description] on the Ulg website.
 
-# 1. Additional instructions about the project
+# 1. Part 1 
+The main can be launch with the command line:
+```
+python3 main.py -1.1 -ip image_database/Building.png
+```
+
+# 2. Additional instructions about the project
 
 - **Plagiarism** : Mr. Van Droogenbroeck was very clear that hee takes it very seriously. It is ok to take code (or to be inspired by code) from the internet but he expects us to  mention the authors. He will take STRONG actions against plagiarism (zero from the whole group for example...) .
 - **Code** : There will be constraint on the environnment used for the project.

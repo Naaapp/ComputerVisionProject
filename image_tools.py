@@ -13,16 +13,20 @@ class ImgObj:
 		""" Init."""
 		self.path = None 
 		self.loaded = False
-		self.im = None
+		self.img = None
+		self.imgGrey = None
+		self.greyExist = False
 	
 	def __init__(self, path):
 		""" Init with path and load image from it. """
 		self.path = path
 		self.loaded = False
-		self.im = None
-		self.load()
+		self.img = None
+		self.loadFromPath()
+		self.imgGrey = None
+		self.greyExist = False
 		
-	def load(self, path=None):
+	def loadFromPath(self, path=None):
 		""" Load the image from the path given or from the last path used/provided.	This will delete the previously 
 		loaded image. """
 		
@@ -33,20 +37,41 @@ class ImgObj:
 			if (not path is None) : self.path = path
 			self.loaded = True
 	
+	def loadFromImg(self, newImg):
+		""" Load the image from the image given. This will delete the previously 
+		loaded image. """
+		
+		self.img = newImg
+		self.loaded = True
+	
 	def display(self, name=''):
 		""" Display the image loaded in this object. """
 		if not self.loaded:
 			if self.path is None:
 				print("The object has no image loaded and no path to load from.")
 			else:
-				self.load()
+				self.loadFromPath()
 				cv2.imshow(name, self.img)
-				print("image displayed")
 				cv2.waitKey(0)
 				cv2.destroyAllWindows()
 				
 		else:
 			cv2.imshow(name, self.img)
-			print("image displayed")
 			cv2.waitKey(0)
 			cv2.destroyAllWindows()
+			
+	def toGrey(self):
+		if not self.loaded:
+			self.loadFromPath()
+		self.greyExist = True
+		self.imgGrey = cv2.cvtColor(self.img, cv2.COLOR_BGR2GRAY)
+	
+	def getImg(self):
+		return self.img
+	
+	def getGreyImg(self):
+		if self.greyExist:
+			return self.imgGrey
+		else:
+			self.toGrey()
+			return self.imgGrey

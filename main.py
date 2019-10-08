@@ -3,7 +3,8 @@
 # =====================================================================================================================
 
 import argparse
-import image_tools
+import image_tools as it
+import image_processor as ip
 
 
 if __name__ == "__main__":
@@ -21,13 +22,20 @@ if __name__ == "__main__":
 	
 	args = parser.parse_args()
 	
+	path = args.im_path
+	
 	# ===========================================
 	#                   Part 1
 	# ===========================================	
 	# 1.1. Display
 	# ==================
 	if args.display:
-		path = "image_database/Building.png"
-		img = image_tools.ImgObj(path)
-		img.display("Test")
+		if path is None:
+			path = input("Please provide the path to the image to display : ")
+		
+		img = it.ImgObj(path)
+		img.display("Display Test") # TODO change this name to ???
+		
+		imgPro = ip.edgePntExtr(img)
+		imgPro.display("Display after process Test") # TODO change this name to ???
 	
