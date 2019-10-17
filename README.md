@@ -10,7 +10,7 @@ Following is the table containing the different methods used for edge points ext
 | Author | Method | Description | Useful links |
 | ------ | ------ | ------ | ------ |
 | Bardhyl |  |  |  |
-| Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] |
+| Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] <br> [OpenCV : morphological gradient]|
 | Julien |  |  |  |
 | Quentin |  |  |  |
 | Théo |  |  |  |
@@ -30,3 +30,4 @@ Following is the table containing the different methods used for edge points ext
    [course]: <https://orbi.uliege.be/handle/2268/184667>
    [general description]: <https://www.programmes.uliege.be/cocoon/20182019/en/cours/ELEN0016-2.html>
    [wikipedia : morphological gradient]:<https://en.wikipedia.org/wiki/Morphological_gradient>
+   [OpenCV : morphological gradient]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html>
