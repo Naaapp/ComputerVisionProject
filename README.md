@@ -4,7 +4,9 @@ Link to the [course] and to its [general description] on the Ulg website.
 
 # 1. Part 1 
 ## 1.2 Edge points extraction
+
 Following is the table containing the different methods used for edge points extraction.
+
 | Author | Method | Description | Useful links |
 | ------ | ------ | ------ | ------ |
 | Bardhyl |  |  |  |
