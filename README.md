@@ -3,10 +3,7 @@
 Link to the [course] and to its [general description] on the Ulg website.
 
 # 1. Part 1 
-The main can be launch with the command line:
-```
-python3 main.py -1.1 -ip image_database/Building.png
-```
+
 
 # 2. Additional instructions about the project
 
