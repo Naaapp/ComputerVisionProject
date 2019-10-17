@@ -3,7 +3,15 @@
 Link to the [course] and to its [general description] on the Ulg website.
 
 # 1. Part 1 
-
+## 1.2 Edge points extraction
+Following is the table containing the different methods used for edge points extraction.
+| Author | Method | Description | Useful links |
+| ------ | ------ | ------ | ------ |
+| Bardhyl |  |  |  |
+| Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] |
+| Julien |  |  |  |
+| Quentin |  |  |  |
+| Théo |  |  |  |
 
 # 2. Additional instructions about the project
 
@@ -19,3 +27,4 @@ Link to the [course] and to its [general description] on the Ulg website.
 
    [course]: <https://orbi.uliege.be/handle/2268/184667>
    [general description]: <https://www.programmes.uliege.be/cocoon/20182019/en/cours/ELEN0016-2.html>
+   [wikipedia : morphological gradient]:<https://en.wikipedia.org/wiki/Morphological_gradient>
