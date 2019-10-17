@@ -13,7 +13,7 @@ Following is the table containing the different methods used for edge points ext
 | Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] <br> [OpenCV : morphological gradient]|
 | Julien |  |  |  |
 | Quentin |  |  |  |
-| Théo |  |  |  |
+| Théo | Canny Algorithm |  | [wikipedia : canny edge detector] <br> [OpenCV : canny edge detector] |
 
 # 2. Additional instructions about the project
 
@@ -31,3 +31,5 @@ Following is the table containing the different methods used for edge points ext
    [general description]: <https://www.programmes.uliege.be/cocoon/20182019/en/cours/ELEN0016-2.html>
    [wikipedia : morphological gradient]:<https://en.wikipedia.org/wiki/Morphological_gradient>
    [OpenCV : morphological gradient]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html>
+   [wikipedia : canny edge detector]:<https://en.wikipedia.org/wiki/Canny_edge_detector>
+   [OpenCV : canny edge detector]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html>
