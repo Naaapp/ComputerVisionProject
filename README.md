@@ -11,7 +11,7 @@ Following is the table containing the different methods used for edge points ext
 | ------ | ------ | ------ | ------ |
 | Bardhyl |  |  |  |
 | Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] <br> [OpenCV : morphological gradient]|
-| Julien | Prewitt operator |  | [https://en.wikipedia.org/wiki/Prewitt_operator] <br> [https://medium.com/@nikatsanka/comparing-edge-detection-methods-638a2919476e] |
+| Julien | Prewitt operator <br> (FDoG Coherent Line Drawing) |  | https://en.wikipedia.org/wiki/Prewitt_operator <br> https://medium.com/@nikatsanka/comparing-edge-detection-methods-638a2919476e <br> https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf|
 | Quentin |  |  |  |
 | Théo | Canny Algorithm |  | [wikipedia : canny edge detector] <br> [OpenCV : canny edge detector] |
 
