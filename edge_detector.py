@@ -37,8 +37,8 @@ def canny_vanilla(img, lo_thresh=40, hi_thresh=220, sobel_size=3):
 
 
 def canny_otsu(img, sobel_size=3):
-    ret, hi_threshold = cv2.threshold(img, 0, 255,
-                                      cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    t_value, hi_threshold, = cv2.threshold(img, 0, 255,
+                                           cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 
     flo_hi_ratio = 0.3
     return cv2.Canny(img, flo_hi_ratio * hi_threshold, hi_threshold,
