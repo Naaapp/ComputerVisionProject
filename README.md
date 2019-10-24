@@ -11,9 +11,18 @@ Following is the table containing the different methods used for edge points ext
 | ------ | ------ | ------ | ------ |
 | Bardhyl |  |  |  |
 | Joachim | Morphological gradient (Gradient of Beucher) |  | [wikipedia : morphological gradient] <br> [OpenCV : morphological gradient]|
-| Julien | Prewitt operator <br> (FDoG Coherent Line Drawing) |  | https://en.wikipedia.org/wiki/Prewitt_operator <br> https://medium.com/@nikatsanka/comparing-edge-detection-methods-638a2919476e <br> https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf|
+| Julien | Prewitt operator <br> (FDoG Coherent Line Drawing) |  | [Wikipedia : Prewit] <br> [Edge detection comparing methods] <br> [PDF : ? ]|
 | Quentin |  |  |  |
 | Théo | Canny Algorithm |  | [wikipedia : canny edge detector] <br> [OpenCV : canny edge detector] |
+
+## 1.3 Segments and endpoints detection
+
+Following is the table containing the different methods used for edge points extraction.
+
+| Group | Method | Description | Useful links |
+| ------ | ------ | ------ | ------ |
+| Bardhyl <br> Julien <br> Quentin |  |  |  |
+| Joachim <br> Théo | Variant of Hough Transform |  | [Paper : Hough Transform Variant] |
 
 # 2. Additional instructions about the project
 
@@ -33,3 +42,7 @@ Following is the table containing the different methods used for edge points ext
    [OpenCV : morphological gradient]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html>
    [wikipedia : canny edge detector]:<https://en.wikipedia.org/wiki/Canny_edge_detector>
    [OpenCV : canny edge detector]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html>
+   [Paper : Hough Transform Variant]:<https://jivp-eurasipjournals.springeropen.com/articles/10.1186/s13640-017-0180-7>
+   [Wikipedia : Prewit]:<https://en.wikipedia.org/wiki/Prewitt_operator>
+   [Edge detection comparing methods]:<https://medium.com/@nikatsanka/comparing-edge-detection-methods-638a2919476e>
+   [PDF : ? ]:<https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.108.559&rep=rep1&type=pdf>
