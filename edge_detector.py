@@ -19,14 +19,6 @@ def gradientOfBeucher(img, k1=5, k2=5):
         d + e)  # ref : https://stackoverflow.com/questions/19580102/inverting-image-in-python-with-opencv
 
 
-def joachimLaplacianLinear(img, k1=5, k2=5):
-    # TODO remove this function after Quentin has done it.
-    kernel = np.ones((k1, k2), np.uint8)
-
-    e = cv2.erode(img, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    d = cv2.dilate(img, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    return d - e
-
 
 def canny_vanilla(img, lo_thresh=40, hi_thresh=220, sobel_size=3):
     """
