@@ -7,7 +7,8 @@ import numpy as np
 import edge_detector as ed
 
 
-def SegHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=0, maxLineGap=0, kSize=2):
+def SegHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
+                    minLineLen=0, maxLineGap=0, kSize=2):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Hough Variant.
 
@@ -29,21 +30,24 @@ def SegHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
     """
     # Detect the edges
     img_edges = fctEdges(img)
-    
+
     # Dilate edges
     kernel = np.ones((kSize, kSize), np.uint8)
-    img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    
-    # Detect segments of lines
-    img_lines_p, img_lines_only = HoughVariant(img_edges, rho, theta, thresh, minLineLen, maxLineGap)
-    
-    #img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    #img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    
-	        
-    return img_lines_p, img_lines_only
+    img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT,
+                           iterations=1)
 
-def HoughVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=0, maxLineGap=0):
+    # Detect segments of lines
+    lines_p, img_lines_p, img_lines_only = HoughVariant(img_edges, rho, theta, thresh,
+                                               minLineLen, maxLineGap)
+
+    # img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
+    # img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
+
+    return lines_p, img_lines_p, img_lines_only
+
+
+def HoughVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=0,
+                 maxLineGap=0):
     """
     Apply the Hough Variant on the image.
 
@@ -62,21 +66,22 @@ def HoughVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=0, maxLine
     """
     # Copy edges to the images that will display the results in BGR
     img_lines_p = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    img_lines_only = img_lines_p*0
-	
-	# Detect segment of lines
-    lines_p = cv2.HoughLinesP(img, rho = rho, theta=theta, threshold=thresh, minLineLength=minLineLen, 
-    						  maxLineGap=maxLineGap)
-	
-	# Add segment detected to images
+    img_lines_only = img_lines_p * 0
+
+    # Detect segment of lines
+    lines_p = cv2.HoughLinesP(img, rho=rho, theta=theta, threshold=thresh,
+                              minLineLength=minLineLen,
+                              maxLineGap=maxLineGap)
+
+    # Add segment detected to images
     if lines_p is not None:
         for i in range(0, len(lines_p)):
             line = lines_p[i][0]
             cv2.line(img_lines_p, (line[0], line[1]), (line[2], line[3]),
                      (0, 0, 255), 1)
             cv2.line(img_lines_only, (line[0], line[1]), (line[2], line[3]),
-                     (0, 0, 255), 1)        
-    return img_lines_p, img_lines_only
+                     (0, 0, 255), 1)
+    return lines_p, img_lines_p, img_lines_only
 
 
 def edgesDetectionFinal(img):
