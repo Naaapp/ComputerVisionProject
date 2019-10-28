@@ -22,7 +22,7 @@ Following is the table containing the different methods used for edge points ext
 | Group | Method | Description | Useful links |
 | ------ | ------ | ------ | ------ |
 | Bardhyl <br> Julien <br> Quentin |  |  |  |
-| Joachim <br> Théo | Variant of Hough Transform |  | [Paper : Hough Transform Variant] |
+| Joachim <br> Théo | Probabilistic Hough Transform |  | |
 
 # 2. Additional instructions about the project
 
