@@ -28,33 +28,34 @@ def HoughVariant(img, fctEdges):
 
     # First stage of voting process
 
-    lines_p = cv2.HoughLinesP(img_edges, 1, np.pi / 180, 50, None, 20, 10)
+    lines_p = cv2.HoughLinesP(img_edges, 1, np.pi / 180, 60, None, 10, 10)
+
+    print(len(lines_p))
 
     if lines_p is not None:
         for i in range(0, len(lines_p)):
             line = lines_p[i][0]
             cv2.line(img_lines_p, (line[0], line[1]), (line[2], line[3]),
-                     (0, 0, 255), 3,
-                     cv2.LINE_AA)
+                     (0, 0, 255), 1,
+                     cv2.LINE_4)
 
     # # TODO change this to the true value
     # seg = img_edges.copy()
     # endPoint = img_edges.copy()
 
-    return img_lines_p, img_edges
+    return img_lines_p, lines_p
 
 
 def edgesDetectionFinal(img):
-    imgEdges = ed.canny_gaussian_blur(img)
+    imgEdges = ed.canny_median_blur(img)
     return imgEdges  # imgThresh
 
 
 if __name__ == "__main__":
-    img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread("tutorial/Images/boat.png", cv2.IMREAD_GRAYSCALE)
 
-    seg, endPoint = HoughVariant(img, edgesDetectionFinal)
+    seg, lines = HoughVariant(img, edgesDetectionFinal)
 
-    cv2.imshow("Original", endPoint)
     cv2.imshow("Segment detection - Variant of Hough transform", seg)
 
     cv2.waitKey(0)
