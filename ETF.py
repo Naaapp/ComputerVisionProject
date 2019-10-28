@@ -31,7 +31,7 @@ class ETF:
 
         # Resizing of the matrices
         self.flowField = np.zeros(self.size + [2], dtype=np.dtype('Float32'))
-        self.refinedETF = np.zeros(self.size, dtype=np.dtype('Float32'))
+        self.refinedETF = np.zeros(self.size + [2], dtype=np.dtype('Float32'))
         self.gradientMag = np.zeros(self.size, dtype=np.dtype('Float32'))
 
         # Use of Sobel to determined magnetude
@@ -46,13 +46,16 @@ class ETF:
             for j in range(self.size[1]):
                 cv2.normalize(np.array([gradX[i, j], gradY[i, j]]), self.flowField[i, j], alpha=0.0, beta=1.0, norm_type=cv2.NORM_MINMAX)
 
-        self.flowField = self.rotate(self.flowField, 90)
+        self.rotate(self.flowField, 90)
 
 
     def rotate(self, input, degree):
         rad = np.radians(degree)
-        f = lambda x: np.array([x[0] * math.cos(rad) - x[1] * math.sin(rad), x[1] * math.cos(rad) + x[0] * math.sin(rad)])
-        return f(input)
+        f = lambda x: np.array(
+            [x[0] * math.cos(rad) - x[1] * math.sin(rad), x[1] * math.cos(rad) + x[0] * math.sin(rad)])
+        for x in range(self.size[0]):
+            for y in range(self.size[1]):
+                input[x][y] = f(input[x][y])
 
 
     def normalizeInput(self, input):
@@ -63,33 +66,38 @@ class ETF:
     def refineETF(self, kernel):
         for i in range(self.size[0]):
             for j in range(self.size[1]):
-                self.refinedETF[i, j] = self.computeNewVector(i, j, kernel)
+                tmp = self.computeNewVector(i, j, kernel)
+                self.refinedETF[i][j][0] = tmp[0]
+                self.refinedETF[i][j][1] = tmp[1]
 
         self.flowField = np.copy(self.refinedETF)
 
     # paper eq 1 (int,int,int)
     def computeNewVector(self, x, y, kernel):
 
-        tCur = self.flowField[x, y]
+        tCur = self.flowField[x][y]
 
         for r in range(y - kernel, y + kernel + 1):
-            if r < 0:
+            if r < 0 or r >= self.size[1]:
                 continue
             for c in range(x - kernel, x + kernel + 1):
-                if c < 0:
+                if c < 0 or c >= self.size[0]:
                     continue
 
-                tCurNeigh = self.flowField[c, r]
+                tCurNeigh = self.flowField[c][r]
 
-                phi = self.computeWs(tCur, tCurNeigh)
-                ws = self.computeWs(np.array([x, y]), np.array([c, r]))
-                wm = self.computeWm(np.linalg.norm(self.gradientMag[x, y]), np.linalg.norm(self.gradientMag[c, r]))
+                phi = self.computePhi(tCur, tCurNeigh)
+                ws = self.computeWs(np.array([x, y]), np.array([c, r]), kernel)
+                wm = self.computeWm(np.linalg.norm(self.gradientMag[x][y]), np.linalg.norm(self.gradientMag[c][r]))
                 wd = self.computeWd(tCur, tCurNeigh)
 
                 actualNeighb = phi * ws * wm * wd * tCurNeigh
                 tCur = np.add(tCur, actualNeighb)
 
-        return self.normalizeInput(tCur)
+        if (abs(tCur[0]) + abs(tCur[1])) != 0:
+            tCur[0] = tCur[0] / (abs(tCur[0]) + abs(tCur[1]))
+            tCur[1] = tCur[1] / (abs(tCur[0]) + abs(tCur[1]))
+        return tCur
 
 
 
