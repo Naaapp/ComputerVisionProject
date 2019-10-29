@@ -9,7 +9,7 @@ import random
 
 
 def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, kSize=2, 
-				    fuse=False):
+				    fuse=False, dTheta=2/360*np.pi*2, dRho = 2):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Hough Variant.
 
@@ -25,6 +25,8 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
         maxLineGap: [double] The maximum gap between two points to be considered in the same line.
         kSize:		[int] Size of kernel for dilation
         fuse:		[bool] Fuse toghether close segments.
+		dTheta: 	[float] The max difference in theta between two segments to be fused together
+		dRho:   	[float] The max difference in rho between two segments to be fused together
 
     @Return:
         seg:		[np.array] the image of the segment detected
@@ -38,7 +40,8 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
     img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
     
     # Detect segments of lines
-    img_lines_p, img_lines_only = houghVariant(img_edges, rho, theta, thresh, minLineLen, maxLineGap, fuse)
+    img_lines_p, img_lines_only = houghVariant(img_edges, rho, theta, thresh, minLineLen, maxLineGap, fuse,
+                                               dTheta, dRho)
     
     #img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
     #img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
@@ -46,7 +49,8 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
 	        
     return img_lines_p, img_lines_only
 
-def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, fuse=False):
+def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, fuse=False, dTheta=2/360*np.pi*2,
+                 dRho = 2):
     """
     Apply the Hough Variant on the image.
 
@@ -59,6 +63,8 @@ def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLine
                     points are disregarded.
         maxLineGap: [double] The maximum gap between two points to be considered in the same line.
         fuse:		[bool] Fuse toghether close segments.
+		dTheta: 	[float] The max difference in theta between two segments to be fused together
+		dRho:   	[float] The max difference in rho between two segments to be fused together
 
     @Return:
         seg:		[np.array] the image of the segment detected
@@ -73,7 +79,7 @@ def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLine
     						  maxLineGap=maxLineGap)
 	
     if fuse:
-        lines_p = fuseCloseSegment(lines_p)
+        lines_p = fuseCloseSegment(lines_p, dTheta, dRho)
 	
 	# Add segment detected to images
     if lines_p is not None:
@@ -116,13 +122,13 @@ def toHoughSpaceVariant(AB):
 			theta = np.arctan(abs(bv-av)/abs(bh-ah)) # theta in [0, pi/2[
 			if ( ah > bh and av > bv) or ( ah < bh and av < bv): # decreasing slope => theta in ]pi/2, pi[
 				theta = np.pi - theta
-		#print(f'\nTo : {endpts} -')
+				
 		rho =  np.linalg.norm(np.cross(np.array([bv-av,bh-ah]), np.array([av, ah]))) / d 
 		if av != bv and ah-av*(ah-bh)/(av-bv) < 0:
 			rho = -rho # rho < 0 if ch < 0
 		cv = rho*np.cos(theta)
 		ch = rho*np.sin(theta)
-		#print(f'\nTo : {endpts} - C is ({cv}, {ch})')
+		
 		if ah < bh or (ah == bh and av > bv):
 			p = np.sign(-5+6*np.sign(ah - ch)) * np.linalg.norm(np.array([av-cv,ah-ch])) # p < 0 if ah <= ch
 		else:
@@ -135,6 +141,13 @@ def toHoughSpaceVariant(AB):
 def fromHoughSpaceVariant(abHS):
 	"""
 	From Hough space variant to the segment endpoints.
+	@Args:
+		A list of lists containing in this order:
+		theta:	[float] inclination of the slope of the segment in radians
+		rho:	[float] shortest distance between the segment (extended to infinity) and the origin. 
+		p:		[float] distance from C to the endpoint with the lowest horizontal value. C being the intersection 
+				between the segment extended and the perpendicular to the segment going to rho
+		d:		[float] distance from A to B
 	@Return:
 		AB:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
 				endpoint of segment of line. (Considering the origin in top left and values in order [v1, h1, v2, h2].)
@@ -154,7 +167,6 @@ def fromHoughSpaceVariant(abHS):
 		# C being the intersection between the segment extended and the perpendicular to the segment going to rho
 		cv = cos*rho # vertical coord of C
 		ch = sin*rho # horizontal coord. of C
-		#print(f'From  : {pt} - C is ({cv}, {ch})')
 		
 		# Finding the endpoints A and B
 		av = int(round(cv - np.sign(1+2*np.sign(np.pi/2-theta))*p*sin))
@@ -192,13 +204,14 @@ def fuseCloseSegment(AB, dTheta=2/360*np.pi*2, dRho = 2):
 		for j in range(i+1, len(abHS)):
 			seg2 = abHS[j]
 			
-			# Check first condition to fuse
+			# Check first condition to fuse (position and orientation of lines)
 			if abs(seg1[0]-seg2[0]) <= dTheta and abs(seg1[1]-seg2[1]) <= dRho:
 				p1 = seg1[2]
 				d1 = seg1[3]
 				p2 = seg2[2]
 				d2 = seg2[3]
-				# Check second condition
+				
+				# Check second condition (position of segments on the lines)
 				if (( p1 <= p2 and p1+d1 > p2 ) or
 				    ( p2 <= p1 and p2+d2 > p1 )) :
 				
@@ -241,6 +254,7 @@ if __name__ == "__main__":
 	segWithEdge2, seg2 = segHoughVariant(img, edgesDetectionFinal, fuse=True)
 
 	cv2.imshow("Original", segWithEdge)
+	cv2.imshow("Original - fused", segWithEdge2)
 	cv2.imshow("Segment detection - Variant of Hough transform", seg)
 	cv2.imshow("Segment detection - Variant of Hough transform - Fused", seg2)
 
