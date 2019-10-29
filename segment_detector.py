@@ -8,13 +8,14 @@ import edge_detector as ed
 import random
 
 
-def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, kSize=2, 
+def segHough(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, kSize=2, 
 				    fuse=False, dTheta=2/360*np.pi*2, dRho = 2):
     """
-    Apply the segment detection by preprocessing the image with the edge detection and using the Hough Variant.
+    Apply the segment detection by preprocessing the image with the edge detection and using the Probabilistic Hough 
+    Transform.
 
     @Args:
-        img:		[np.array]
+        img:		[np.array] The image.
         fctEdges:	[python function] Function taking the img as argument and returning the edge detection of the image.
                     The edges are of value 255 and the rest is at 0.
         rho:		[double] resolution of the image
@@ -29,8 +30,10 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
 		dRho:   	[float] The max difference in rho between two segments to be fused together
 
     @Return:
-        seg:		[np.array] the image of the segment detected
-        endPoint:	[np.array] the image of the endpoints detected
+		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
+				    	endpoint of segment of line.
+        img_lines_p:	[np.array] the image of the segment detected with the edges detected previously
+        img_lines_only:	[np.array] the image of the segments detected only
     """
     # Detect the edges
     img_edges = fctEdges(img)
@@ -41,10 +44,8 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
                            iterations=1)
 
     # Detect segments of lines
-    img_lines_p, img_lines_only = houghVariant(img_edges, rho, theta, thresh, minLineLen, maxLineGap, fuse,
-                                               dTheta, dRho)
-    lines_p, img_lines_p, img_lines_only = HoughVariant(img_edges, rho, theta, thresh,
-                                               minLineLen, maxLineGap)
+    lines_p, img_lines_p, img_lines_only = hough(img_edges, rho, theta, thresh, minLineLen, maxLineGap, fuse,
+                                                 dTheta, dRho)
 
     # img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
     # img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
@@ -52,13 +53,13 @@ def segHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineL
     return lines_p, img_lines_p, img_lines_only
 
 
-def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, fuse=False, dTheta=2/360*np.pi*2,
+def hough(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0, fuse=False, dTheta=2/360*np.pi*2,
                  dRho = 2):
     """
-    Apply the Hough Variant on the image.
+    Apply the probabilistic Hough Transform on the image.
 
     @Args:
-        img:		[np.array]
+        img:		[np.array] The image with detection of edges.
         rho:		[double] resolution of the image
         theta: 		[double] The resolution of the parameter in radians. We use 1 degree
         thresh:  	[int] The minimum number of intersections to “detect” a line
@@ -70,8 +71,10 @@ def houghVariant(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLine
 		dRho:   	[float] The max difference in rho between two segments to be fused together
 
     @Return:
-        seg:		[np.array] the image of the segment detected
-        endPoint:	[np.array] the image of the endpoints detected
+		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
+				    	endpoint of segment of line.
+        img_lines_p:	[np.array] the image of the segment detected with the edges detected previously
+        img_lines_only:	[np.array] the image of the segments detected only
     """
     # Copy edges to the images that will display the results in BGR
     img_lines_p = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -253,8 +256,8 @@ def edgesDetectionFinal(img):
 if __name__ == "__main__":
 	img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
 
-	segWithEdge, seg = segHoughVariant(img, edgesDetectionFinal)
-	segWithEdge2, seg2 = segHoughVariant(img, edgesDetectionFinal, fuse=True)
+	lines, segWithEdge, seg = segHough(img, edgesDetectionFinal)
+	lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal, fuse=True)
 
 	cv2.imshow("Original", segWithEdge)
 	cv2.imshow("Original - fused", segWithEdge2)
