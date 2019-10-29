@@ -37,8 +37,9 @@ def SegHoughVariant(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
                            iterations=1)
 
     # Detect segments of lines
-    lines_p, img_lines_p, img_lines_only = HoughVariant(img_edges, rho, theta, thresh,
-                                               minLineLen, maxLineGap)
+    lines_p, img_lines_p, img_lines_only = HoughVariant(img_edges, rho, theta,
+                                                        thresh,
+                                                        minLineLen, maxLineGap)
 
     # img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
     # img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
@@ -92,7 +93,7 @@ def edgesDetectionFinal(img):
 if __name__ == "__main__":
     img = cv2.imread("tutorial/Images/boat.png", cv2.IMREAD_GRAYSCALE)
 
-    seg, lines = HoughVariant(img, edgesDetectionFinal)
+    lines, seg, _ = SegHoughVariant(img, edgesDetectionFinal)
 
     cv2.imshow("Segment detection - Variant of Hough transform", seg)
 

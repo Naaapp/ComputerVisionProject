@@ -25,7 +25,7 @@ def distance_numpy(A, B, P):
 
 def edge_classifier(input_img):
     img_edges = sd.edgesDetectionFinal(input_img)
-    lines, seg, _ = sd.HoughVariant(img_edges)
+    lines, segments, _ = sd.HoughVariant(img_edges)
     img_edges_lines = np.zeros(shape=np.shape(img_edges), dtype=np.uint8)
     img_edges_not_lines = np.zeros(shape=np.shape(img_edges), dtype=np.uint8)
 
@@ -45,7 +45,7 @@ def edge_classifier(input_img):
                     img_edges_lines[x][y] = img_edges[x][y]
                 else:
                     img_edges_not_lines[x][y] = img_edges[x][y]
-    return seg, img_edges, img_edges_lines, img_edges_not_lines
+    return segments, img_edges, img_edges_lines, img_edges_not_lines
 
 
 if __name__ == "__main__":
