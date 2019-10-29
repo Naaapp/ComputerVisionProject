@@ -14,9 +14,7 @@ def gradientOfBeucher(img, k1=5, k2=5):
 
     e = cv2.erode(img, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
     d = cv2.dilate(img, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    # return d-e # This is not the Beucher Gradient but the non-linear Laplacian
-    return cv2.bitwise_not(
-        d + e)  # ref : https://stackoverflow.com/questions/19580102/inverting-image-in-python-with-opencv
+    return d + e
 
 
 
