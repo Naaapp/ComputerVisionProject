@@ -14,8 +14,6 @@ import math
 # from: https://gist.github.com/nim65s/5e9902cd67f094ce65b0
 def distance_numpy(A, B, P):
     """ segment line AB, point P, where each one is an array([x, y]) """
-    if all(A == P) or all(B == P):
-        return 0
     if arccos(dot((P - A) / norm(P - A), (B - A) / norm(B - A))) > pi / 2:
         return norm(P - A)
     if arccos(dot((P - B) / norm(P - B), (A - B) / norm(A - B))) > pi / 2:
@@ -23,9 +21,9 @@ def distance_numpy(A, B, P):
     return norm(cross(A - B, A - P)) / norm(B - A)
 
 
-def edge_classifier(input_img):
+def edge_classifier_loop(input_img):
     img_edges = sd.edgesDetectionFinal(input_img)
-    lines, segments, _ = sd.HoughVariant(img_edges)
+    lines, segments, _ = sd.hough(img_edges)
     img_edges_lines = np.zeros(shape=np.shape(img_edges), dtype=np.uint8)
     img_edges_not_lines = np.zeros(shape=np.shape(img_edges), dtype=np.uint8)
 
@@ -48,9 +46,16 @@ def edge_classifier(input_img):
     return segments, img_edges, img_edges_lines, img_edges_not_lines
 
 
+def edge_classifier_matrix(input_img):
+    img_edges, _, segments, segments_only = sd.segmentDetectorFinal(input_img)
+    img_edges_lines = np.multiply(img_edges, segments_only)*255
+    img_edges_not_lines = img_edges - img_edges_lines
+    return segments, img_edges, img_edges_lines, img_edges_not_lines
+
+
 if __name__ == "__main__":
     img = cv2.imread("tutorial/Images/boat.png", cv2.IMREAD_GRAYSCALE)
-    seg, edges, line_edges, not_line_edges = edge_classifier(img)
+    seg, edges, line_edges, not_line_edges = edge_classifier_matrix(img)
 
     cv2.imshow("Segment classification : segment detected by the segment "
                "detector ", seg)
