@@ -6,7 +6,7 @@ from pylsd.lsd import lsd              # LSD.py python binding
 def lsd_alg(gray_image, line_width=0):
     """TODO"""
 
-    result = np.copy(gray_image)
+    result = np.zeros(gray_image.shape + (3,)) # Black RGB image with same height/width than gray-image
     lines = lsd(gray_image)  # python script calling the C++ so library
 
     for i in range(lines.shape[0]):
@@ -16,6 +16,6 @@ def lsd_alg(gray_image, line_width=0):
             width = lines[i, 4]
         else:
             width = line_width * 2
-        cv2.line(result[0], pt1, pt2, (0, 0, 255), int(np.ceil(width / 2)))  # CAUTION THIS FUNCTION FAILED NEED TO BE PATCHED (je suis trop fatigué mtn)
+        cv2.line(result, pt1, pt2, (0, 0, 255), int(np.ceil(width / 2)))
 
-    return result[0]  # Lines over a Black background
+    return result  # Lines over a Black background
