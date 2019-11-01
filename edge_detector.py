@@ -98,9 +98,34 @@ def canny_median_blur(img, lo_thresh=0, hi_thresh=0, sobel_size=3):
 
 def nonLinearLaplacian(img, kernel_type=cv2.MORPH_RECT, k1=5, k2=5):
     """
+    Apply the non linear Laplacian to an image.
     """
     kernel = cv2.getStructuringElement(kernel_type, (k1, k2))
     return cv2.morphologyEx(img, cv2.MORPH_GRADIENT, kernel)
+
+def edgesNLL(img):
+	"""
+	Take a gray image and return a gray image of the edges detected using a tuned non Linear Laplacian.
+	:param img:         [np.array of shape (? x ?)] The  input image.
+	:return:            [np.array] the image containing the local edge points
+	"""
+	GRADIENT_K_SIZE = 2
+	BLUR_K_SIZE = 7
+	BLUR_SIGMA = 2
+	img_float = img.astype(np.uint8)
+
+	# apply gaussian blur to remove noise
+	imgBlur = cv2.GaussianBlur(img_float, (BLUR_K_SIZE, BLUR_K_SIZE), BLUR_SIGMA)
+
+	# detect edges
+	imgEdges = nonLinearLaplacian(imgBlur, kernel_type=cv2.MORPH_RECT, k1=GRADIENT_K_SIZE, k2=GRADIENT_K_SIZE)
+
+	# apply threshold
+	med = np.mean(imgEdges)
+	lo_thresh = int(2.5 * med)
+	threshValue, imgThresh = cv2.threshold(imgEdges,lo_thresh,255,cv2.THRESH_BINARY)
+
+	return imgThresh
 
 
 def sobel(img, dx=1, dy=1, kernel_size=3):
