@@ -17,25 +17,34 @@ def gradientOfBeucher(img, k1=5, k2=5):
     return d + e
 
 
-
 def canny_vanilla(img, lo_thresh=40, hi_thresh=220, sobel_size=3):
     """
-    TODO
+    Apply the canny method to the image (without any preprocessing)
+    :param img:         [np.array] The  input image.
+    :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
+                        gradient lower than this value are sure to be non-edges
+    :param hi_thresh:   [int] High Threshold : Any edges with intensity
+                        gradient more than this value are sure to be edges
+    :param sobel_size:  [int] Size of the Sobel kernel used
+                        to get first derivative
+    :return:            [np.array] the image containing the local edge points
     """
     return cv2.Canny(img, lo_thresh, hi_thresh, apertureSize=sobel_size,
                      L2gradient=True)
 
 
-def canny_otsu(img, sobel_size=3):
-    t_value, hi_threshold, = cv2.threshold(img, 0, 255,
-                                           cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-
-    flo_hi_ratio = 0.3
-    return cv2.Canny(img, flo_hi_ratio * hi_threshold, hi_threshold,
-                     apertureSize=sobel_size, L2gradient=False)
-
-
 def canny_gaussian_blur(img, lo_thresh=0, hi_thresh=0, sobel_size=3):
+    """
+    Apply the canny method to the image (with gaussian blur pre-processing)
+    :param img:         [np.array] The input image.
+    :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
+                        gradient lower than this value are sure to be non-edges
+    :param hi_thresh:   [int] High Threshold : Any edges with intensity
+                        gradient more than this value are sure to be edges
+    :param sobel_size:  [int] Size of the Sobel kernel used
+                        to get first derivative
+    :return:            [np.array] the image containing the local edge points
+    """
     i_gaus_kernel_size = 11
     img_filt = cv2.GaussianBlur(img, (i_gaus_kernel_size, i_gaus_kernel_size),
                                 0)
@@ -57,6 +66,17 @@ def canny_gaussian_blur(img, lo_thresh=0, hi_thresh=0, sobel_size=3):
 
 
 def canny_median_blur(img, lo_thresh=0, hi_thresh=0, sobel_size=3):
+    """
+    Apply the canny method to the image (with median blur pre-processing)
+    :param img:         [np.array] The input image.
+    :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
+                        gradient lower than this value are sure to be non-edges
+    :param hi_thresh:   [int] High Threshold : Any edges with intensity
+                        gradient more than this value are sure to be edges
+    :param sobel_size:  [int] Size of the Sobel kernel used
+                        to get first derivative
+    :return:            [np.array] the image containing the local edge points
+    """
     i_gaus_kernel_size = 5
     img_filt = cv2.medianBlur(img, i_gaus_kernel_size)
 

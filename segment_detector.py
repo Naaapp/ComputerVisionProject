@@ -31,6 +31,7 @@ def segHough(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
 		dRho:   	[float] The max difference in rho between two segments to be fused together
 
     @Return:
+        img_edges       [np.array] the image with the edges
 		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
 				    	endpoint of segment of line.
         img_lines_p:	[np.array] the image of the segment detected with the edges detected previously
@@ -261,11 +262,25 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
 
 
 def edgesDetectionFinal(img):
+    """
+    The edge detector chosen finally after comparing the different candidates
+    :param img: [np.array] The input image
+    :return:    [np.array] The image containing the local edge points
+    """
     imgEdges = ed.canny_gaussian_blur(img)
     return imgEdges
 
 
 def segmentDetectorFinal(img):
+    """
+    The segment detector chosen finally after comparing the different candidates
+    :param img: [np.array] The input image
+    :return:    img_edges       [np.array] the image with the edges
+		        lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
+	    		    	        endpoint of segment of line.
+                img_lines_p:    [np.array] the image of the segment detected with the edges detected previously
+                img_lines_only:	[np.array] the image of the segments detected only
+    """
     return segHough(img, edgesDetectionFinal)
 
 
@@ -273,7 +288,8 @@ if __name__ == "__main__":
     img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
 
     _, lines, segWithEdge, seg = segHough(img, edgesDetectionFinal)
-    _, lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal, fuse=True)
+    _, lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal,
+                                             fuse=True)
 
     cv2.imshow("Original", segWithEdge)
     cv2.imshow("Original - fused", segWithEdge2)
