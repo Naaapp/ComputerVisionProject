@@ -281,6 +281,8 @@ def segmentDetectorFinal(input_img):
                 img_edges_segment:  [np.array] the image of the segment detected with the edges detected previously
                 img_segment:        [np.array] the image of the segments detected only
     """
+    # Note : pour le lsd, il suffira de mettre img_edges = edgesDetectionFinal(input_img) et d'ensuite obtenir les trois autres return
+    #Le img_segment doit être une image greyscale pour la classification
     return segHough(input_img, edgesDetectionFinal)
 
 
