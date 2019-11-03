@@ -8,15 +8,15 @@ import edge_detector as ed
 import random
 
 
-def segHough(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
-             maxLineGap=0, kSize=2,
+def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
+             minLineLen=5, maxLineGap=0, kSize=2,
              fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Probabilistic Hough 
     Transform.
 
     @Args:
-        img:		[np.array] The image.
+        input_img:		[np.array] The image.
         fctEdges:	[python function] Function taking the img as argument and returning the edge detection of the image.
                     The edges are of value 255 and the rest is at 0.
         rho:		[double] resolution of the image
@@ -34,11 +34,11 @@ def segHough(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
         img_edges       [np.array] the image with the edges
 		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
 				    	endpoint of segment of line.
-        img_lines_p:	[np.array] the image of the segment detected with the edges detected previously
-        img_lines_only:	[np.array] the image of the segments detected only
+        img_edges_segment:	[np.array] Image containing the edges and segments
+        img_segment:	[np.array] Image containing the segments
     """
     # Detect the edges
-    img_edges = fctEdges(img)
+    img_edges = fctEdges(input_img)
 
     # Dilate edges
     kernel = np.ones((kSize, kSize), np.uint8)
@@ -46,24 +46,23 @@ def segHough(img, fctEdges, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
                            iterations=1)
 
     # Detect segments of lines
-    lines_p, img_lines_p, img_lines_only = hough(img_edges, rho, theta, thresh,
-                                                 minLineLen, maxLineGap, fuse,
-                                                 dTheta, dRho)
+    lines_p, img_edges_segment, img_segment = hough(img_edges, rho, theta,
+                                                    thresh, minLineLen,
+                                                    maxLineGap, fuse,
+                                                    dTheta, dRho)
 
-    # img_lines_p = cv2.dilate(img_lines_p, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-    # img_lines_only = cv2.dilate(img_lines_only, kernel, borderType=cv2.BORDER_CONSTANT, iterations=1)
-
-    return img_edges, lines_p, img_lines_p, img_lines_only
+    return img_edges, lines_p, img_edges_segment, img_segment
 
 
-def hough(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0,
+def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
+          maxLineGap=0,
           fuse=False, dTheta=2 / 360 * np.pi * 2,
           dRho=2):
     """
     Apply the probabilistic Hough Transform on the image.
 
     @Args:
-        img:		[np.array] The image with detection of edges.
+        input_img:		[np.array] The image with detection of edges.
         rho:		[double] resolution of the image
         theta: 		[double] The resolution of the parameter in radians. We use 1 degree
         thresh:  	[int] The minimum number of intersections to “detect” a line
@@ -77,18 +76,19 @@ def hough(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0,
     @Return:
 		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
 				    	endpoint of segment of line.
-        img_lines_p:	[np.array] the image of the segment detected with the edges detected previously
-        img_lines_only:	[np.array] the image of the segments detected only
+        img_edges_segment:	[np.array] the image of the segment detected with the edges detected previously
+        img_segment:	[np.array] the image of the segments detected only
     """
     # Copy edges to the images that will display the results in BGR
-    img_lines_p = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    img_lines_only = img * 0
+    img_edges_segment = cv2.cvtColor(input_img, cv2.COLOR_GRAY2BGR)
+    img_segment = input_img * 0
 
     # Detect segment of lines
-    lines_p = cv2.HoughLinesP(img, rho=rho, theta=theta, threshold=thresh,
+    lines_p = cv2.HoughLinesP(input_img, rho=rho, theta=theta, threshold=thresh,
                               minLineLength=minLineLen,
                               maxLineGap=maxLineGap)
 
+    # Fuse lines if asked
     if fuse:
         lines_p = fuseCloseSegment(lines_p, dTheta, dRho)
 
@@ -96,11 +96,11 @@ def hough(img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5, maxLineGap=0,
     if lines_p is not None:
         for i in range(0, len(lines_p)):
             line = lines_p[i][0]
-            cv2.line(img_lines_p, (line[0], line[1]), (line[2], line[3]),
+            cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]),
                      (0, 0, 255), 1)
-            cv2.line(img_lines_only, (line[0], line[1]), (line[2], line[3]),
+            cv2.line(img_segment, (line[0], line[1]), (line[2], line[3]),
                      255, 1)
-    return lines_p, img_lines_p, img_lines_only
+    return lines_p, img_edges_segment, img_segment
 
 
 def toHoughSpaceVariant(AB):
@@ -261,40 +261,40 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
     return fromHoughSpaceVariant(abHS)
 
 
-def edgesDetectionFinal(img):
+def edgesDetectionFinal(input_img):
     """
     The edge detector chosen finally after comparing the different candidates
-    :param img: [np.array] The input image
+    :param input_img: [np.array] The input image
     :return:    [np.array] The image containing the local edge points
     """
-    imgEdges = ed.canny_gaussian_blur(img)
-    return imgEdges
+    img_edges = ed.canny_median_blur(input_img)
+    return img_edges
 
 
-def segmentDetectorFinal(img):
+def segmentDetectorFinal(input_img):
     """
     The segment detector chosen finally after comparing the different candidates
-    :param img: [np.array] The input image
+    :param input_img: [np.array] The input image
     :return:    img_edges       [np.array] the image with the edges
-		        lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
-	    		    	        endpoint of segment of line.
-                img_lines_p:    [np.array] the image of the segment detected with the edges detected previously
-                img_lines_only:	[np.array] the image of the segments detected only
+                lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
+                                endpoint of segment of line.
+                img_edges_segment:  [np.array] the image of the segment detected with the edges detected previously
+                img_segment:        [np.array] the image of the segments detected only
     """
-    return segHough(img, edgesDetectionFinal)
+    return segHough(input_img, edgesDetectionFinal)
 
 
-if __name__ == "__main__":
-    img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
-
-    _, lines, segWithEdge, seg = segHough(img, edgesDetectionFinal)
-    _, lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal,
-                                             fuse=True)
-
-    cv2.imshow("Original", segWithEdge)
-    cv2.imshow("Original - fused", segWithEdge2)
-    cv2.imshow("Segment detection - Variant of Hough transform", seg)
-    cv2.imshow("Segment detection - Variant of Hough transform - Fused", seg2)
-
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+# if __name__ == "__main__":
+#     img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
+#
+#     _, lines, segWithEdge, seg = segHough(img, edgesDetectionFinal)
+#     _, lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal,
+#                                              fuse=True)
+#
+#     cv2.imshow("Original", segWithEdge)
+#     cv2.imshow("Original - fused", segWithEdge2)
+#     cv2.imshow("Segment detection - Variant of Hough transform", seg)
+#     cv2.imshow("Segment detection - Variant of Hough transform - Fused", seg2)
+#
+#     cv2.waitKey(0)
+#     cv2.destroyAllWindows()
