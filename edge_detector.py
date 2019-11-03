@@ -107,7 +107,7 @@ def canny_gaussian_blur_downsize(input_img, lo_thresh=0, hi_thresh=0,
 def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
     """
     Apply the canny method to the image (with median blur pre-processing)
-    :param input_img:         [np.array] The input image.
+    :param input_img:         [np.array] The input image in gray (shape = (? x ?))
     :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
                         gradient lower than this value are sure to be non-edges
     :param hi_thresh:   [int] High Threshold : Any edges with intensity

@@ -10,7 +10,7 @@ import random
 
 def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
              minLineLen=5, maxLineGap=0, kSize=2,
-             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2):
+             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, dilate=True):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Probabilistic Hough 
     Transform.
@@ -29,6 +29,7 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
         fuse:		[bool] Fuse toghether close segments.
 		dTheta: 	[float] The max difference in theta between two segments to be fused together
 		dRho:   	[float] The max difference in rho between two segments to be fused together
+		dilate:		[bool] Whether to dilate the edge after detecting them or not.
 
     @Return:
         img_edges       [np.array] the image with the edges
@@ -41,9 +42,10 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
     img_edges = fctEdges(input_img)
 
     # Dilate edges
-    kernel = np.ones((kSize, kSize), np.uint8)
-    img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT,
-                           iterations=1)
+    if dilate:
+        kernel = np.ones((kSize, kSize), np.uint8)
+        img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT,
+                               iterations=1)
 
     # Detect segments of lines
     lines_p, img_edges_segment, img_segment = hough(img_edges, rho, theta,
@@ -268,6 +270,7 @@ def edgesDetectionFinal(input_img):
     :return:    [np.array] The image containing the local edge points
     """
     img_edges = ed.canny_median_blur(input_img)
+    #img_edges = ed.canny_gaussian_blur_downsize(input_img)
     return img_edges
 
 
