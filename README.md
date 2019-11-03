@@ -38,11 +38,9 @@ Following is the table containing the different methods used for edge points ext
 git clone https://github.com/primetang/pylsd.git
 cd pylsd
 nano ./pylsd/lsd.py
-path/to/Annaconda/environement/python setup.py install
 ```
 
-- If anaconda environment variables are not used, the default 'python' command is enough
-- With nano, we need to change line 15 and 20 provoking an error with tmp file name
+- With **nano**, we need to change line 15 and 20 provoking an error with tmp file name. Down below, there is the deprecated line (in comment) above the correct one
 
 ```python
 # temp = os.path.abspath(str(np.random.randint(1, 1000000)) + 'ntl.txt').replace('\\', '/')
@@ -52,7 +50,15 @@ temp = os.path.abspath(str(np.random.randint(1, 1000000)) + 'ntl.txt').replace('
 lsdlib.lsdGet(src, ctypes.c_int(rows), ctypes.c_int(cols), ctypes.c_char_p(temp))
 ```
 
-- The openCV example from the git
+- Then we can launch the python script for installation
+
+```bash
+path/to/Annaconda/environement/python setup.py install
+```
+
+- If anaconda environment variables are not used, the default 'python' command is enough
+
+- The openCV example from the git (**note**: this is in python 2.7, xrange has been replace by range in python 3)
 
 ```python
 import cv2
