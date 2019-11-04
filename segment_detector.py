@@ -11,7 +11,7 @@ import random
 
 def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
              minLineLen=5, maxLineGap=0, kSize=2,
-             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, dilate=True):
+             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=3, dilate=True):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Probabilistic Hough 
     Transform.
@@ -30,6 +30,7 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
         fuse:        [bool] Fuse toghether close segments.
         dTheta:     [float] The max difference in theta between two segments to be fused together
         dRho:       [float] The max difference in rho between two segments to be fused together
+        maxL:       [int] The maximal number of lines fused together. Set to 0 for no limit.
         dilate:        [bool] Whether to dilate the edge after detecting them or not.
 
     @Return:
@@ -60,7 +61,7 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
 def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
           maxLineGap=0,
           fuse=False, dTheta=2 / 360 * np.pi * 2,
-          dRho=2):
+          dRho=2, maxL=3, lineWidth=1):
     """
     Apply the probabilistic Hough Transform on the image.
 
@@ -75,6 +76,8 @@ def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
         fuse:        [bool] Fuse toghether close segments.
         dTheta:     [float] The max difference in theta between two segments to be fused together
         dRho:       [float] The max difference in rho between two segments to be fused together
+        maxL:       [int] The maximal number of lines fused together. Set to 0 for no limit.
+        lineWidth:  [int] The width of segments drawn.
 
     @Return:
         lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
@@ -100,9 +103,9 @@ def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
         for i in range(0, len(lines_p)):
             line = lines_p[i][0]
             cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]),
-                     (0, 0, 255), 1)
+                     (0, 0, 255), lineWidth)
             cv2.line(img_segment, (line[0], line[1]), (line[2], line[3]),
-                     255, 1)
+                     255, lineWidth)
     return lines_p, img_edges_segment, img_segment
 
 
@@ -289,11 +292,12 @@ def edgesDetectionFinal(input_img):
     return img_edges
 
 
-def segmentDetectorFinal(input_img, dataset=None):
+def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
     """
     The segment detector chosen finally after comparing the different candidates
     :param input_img: [np.array] The input image
-           dataset:   [str] The dataset from which the image origins from the list ['sudoku'].
+    :param dataset:   [str] The dataset from which the image origins from the list ['sudoku'].
+    :param lineWidth:  [int] The width of segments drawn.
     :return:    img_edges       [np.array] the image with the edges
                 lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
                                 endpoint of segment of line.
@@ -307,8 +311,8 @@ def segmentDetectorFinal(input_img, dataset=None):
     if not dataset is None: # particular dataset used
         if dataset == 'sudoku':
             img_edges = ed.canny_median_blur(input_img, downsize=False)
-            lines, img_segment, img_points = LSD.lsd_alg(img, line_width=1, fuse=True, dTheta=1 / 360 * np.pi * 2,
-                                                         dRho=8)
+            lines, img_segment, img_points = LSD.lsd_alg(input_img, line_width=lineWidth, fuse=True, 
+                                                         dTheta=1 / 360 * np.pi * 2, dRho=8)
             lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
             
             # Add segment detected to the edges image
@@ -316,11 +320,11 @@ def segmentDetectorFinal(input_img, dataset=None):
             if lines is not None:
                 for i in range(0, len(lines)):
                     line = lines[i][0]
-                    cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]), (0, 0, 255), 1)
+                    cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]), (0, 0, 255), lineWidth)
             
             return img_edges, lines, img_edges_segment, img_segment
                                                          
-    return segHough(input_img, edgesDetectionFinal)
+    return segHough(input_img, edgesDetectionFinal, lineWidth)
 
 if __name__ == "__main__":
     img = cv2.imread("image_database/sudoku/sudoku_00014.png")

@@ -4,7 +4,7 @@ from pylsd.lsd import lsd              # LSD.py python binding
 import math                            # Convert radian to degree
 from sklearn.cluster import AgglomerativeClustering  # Hierarchical clustering
 from scipy.spatial import distance  # Euclidean distance computation
-from segment_detector import fuseCloseSegment
+import segment_detector as sd          # A segment detector
 
 
 def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2):
@@ -29,7 +29,7 @@ def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, d
     # Fuse lines if asked
     if fuse:
         lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
-        lines = fuseCloseSegment(lines, dTheta, dRho, 4)
+        lines = sd.fuseCloseSegment(lines, dTheta, dRho, 4)
         lines = lines.reshape((lines.shape[0],lines.shape[2]))
     
 
