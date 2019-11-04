@@ -5,6 +5,7 @@
 import cv2
 import numpy as np
 import edge_detector as ed
+import LSD
 import random
 
 
@@ -16,27 +17,27 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
     Transform.
 
     @Args:
-        input_img:		[np.array] The image.
-        fctEdges:	[python function] Function taking the img as argument and returning the edge detection of the image.
+        input_img:        [np.array] The image.
+        fctEdges:    [python function] Function taking the img as argument and returning the edge detection of the image.
                     The edges are of value 255 and the rest is at 0.
-        rho:		[double] resolution of the image
-        theta: 		[double] The resolution of the parameter in radians. We use 1 degree
+        rho:        [double] resolution of the image
+        theta:         [double] The resolution of the parameter in radians. We use 1 degree
         thresh:  [int] The minimum number of intersections to “detect” a line
         minLineLen: [double] The minimum number of points that can form a line. Lines with less than this number of
                     points are disregarded.
         maxLineGap: [double] The maximum gap between two points to be considered in the same line.
-        kSize:		[int] Size of kernel for dilation
-        fuse:		[bool] Fuse toghether close segments.
-		dTheta: 	[float] The max difference in theta between two segments to be fused together
-		dRho:   	[float] The max difference in rho between two segments to be fused together
-		dilate:		[bool] Whether to dilate the edge after detecting them or not.
+        kSize:        [int] Size of kernel for dilation
+        fuse:        [bool] Fuse toghether close segments.
+        dTheta:     [float] The max difference in theta between two segments to be fused together
+        dRho:       [float] The max difference in rho between two segments to be fused together
+        dilate:        [bool] Whether to dilate the edge after detecting them or not.
 
     @Return:
         img_edges       [np.array] the image with the edges
-		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
-				    	endpoint of segment of line.
-        img_edges_segment:	[np.array] Image containing the edges and segments
-        img_segment:	[np.array] Image containing the segments
+        lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
+                        endpoint of segment of line.
+        img_edges_segment:    [np.array] Image containing the edges and segments
+        img_segment:    [np.array] Image containing the segments
     """
     # Detect the edges
     img_edges = fctEdges(input_img)
@@ -64,22 +65,22 @@ def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
     Apply the probabilistic Hough Transform on the image.
 
     @Args:
-        input_img:		[np.array] The image with detection of edges.
-        rho:		[double] resolution of the image
-        theta: 		[double] The resolution of the parameter in radians. We use 1 degree
-        thresh:  	[int] The minimum number of intersections to “detect” a line
+        input_img:        [np.array] The image with detection of edges.
+        rho:        [double] resolution of the image
+        theta:         [double] The resolution of the parameter in radians. We use 1 degree
+        thresh:      [int] The minimum number of intersections to “detect” a line
         minLineLen: [double] The minimum number of points that can form a line. Lines with less than this number of
                     points are disregarded.
         maxLineGap: [double] The maximum gap between two points to be considered in the same line.
-        fuse:		[bool] Fuse toghether close segments.
-		dTheta: 	[float] The max difference in theta between two segments to be fused together
-		dRho:   	[float] The max difference in rho between two segments to be fused together
+        fuse:        [bool] Fuse toghether close segments.
+        dTheta:     [float] The max difference in theta between two segments to be fused together
+        dRho:       [float] The max difference in rho between two segments to be fused together
 
     @Return:
-		lines_p:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
-				    	endpoint of segment of line.
-        img_edges_segment:	[np.array] the image of the segment detected with the edges detected previously
-        img_segment:	[np.array] the image of the segments detected only
+        lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second 
+                        endpoint of segment of line.
+        img_edges_segment:    [np.array] the image of the segment detected with the edges detected previously
+        img_segment:    [np.array] the image of the segments detected only
     """
     # Copy edges to the images that will display the results in BGR
     img_edges_segment = cv2.cvtColor(input_img, cv2.COLOR_GRAY2BGR)
@@ -109,15 +110,15 @@ def toHoughSpaceVariant(AB):
     """
     Given the list of the two end points of segments, return the values of the segments in a variant of the Hough space.
     @Args:
-        AB:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
+        AB:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
                 endpoint of segment of line. (Considering the origin in top left and values in order [v1, h1, v2, h2].)
     @Return:
         A list of lists containing :
-        theta:	[float] inclination of the slope of the segment in radians
-        rho:	[float] shortest distance between the segment (extended to infinity) and the origin.
-        p:		[float] distance from C to the endpoint with the lowest horizontal value. C being the intersection
+        theta:    [float] inclination of the slope of the segment in radians
+        rho:    [float] shortest distance between the segment (extended to infinity) and the origin.
+        p:        [float] distance from C to the endpoint with the lowest horizontal value. C being the intersection
                 between the segment extended and the perpendicular to the segment going to rho
-        d:		[float] distance from A to B
+        d:        [float] distance from A to B
     """
     retList = []
 
@@ -162,13 +163,13 @@ def fromHoughSpaceVariant(abHS):
     From Hough space variant to the segment endpoints.
     @Args:
         A list of lists containing in this order:
-        theta:	[float] inclination of the slope of the segment in radians
-        rho:	[float] shortest distance between the segment (extended to infinity) and the origin.
-        p:		[float] distance from C to the endpoint with the lowest horizontal value. C being the intersection
+        theta:    [float] inclination of the slope of the segment in radians
+        rho:    [float] shortest distance between the segment (extended to infinity) and the origin.
+        p:        [float] distance from C to the endpoint with the lowest horizontal value. C being the intersection
                 between the segment extended and the perpendicular to the segment going to rho
-        d:		[float] distance from A to B
+        d:        [float] distance from A to B
     @Return:
-        AB:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
+        AB:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
                 endpoint of segment of line. (Considering the origin in top left and values in order [v1, h1, v2, h2].)
     """
     retList = np.zeros((len(abHS), 1, 4), dtype=int)
@@ -206,7 +207,7 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
     """
     Fuse close segments together.
     @Args:
-        AB:		[numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
+        AB:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
                 endpoint of segment of line. (Considering the origin in top left and values in order [v1, h1, v2, h2].)
         dTheta: [float] The max difference in theta between two segments to be fused together
         dRho:   [float] The max difference in rho between two segments to be fused together
@@ -218,16 +219,16 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
     i = 0
     length = len(abHS)
     cnt = 1 # Count of max line fused together
-	
+    
     while True:
         if i == len(abHS):
             break
         elif i == length: # another line has been fused
-        	cnt += 1
-        	length = len(abHS)
-        	i = 0
-        	if cnt == maxL:
-        		break
+            cnt += 1
+            length = len(abHS)
+            i = 0
+            if cnt == maxL:
+                break
 
         seg1 = abHS[i]
         removeI = False
@@ -288,10 +289,11 @@ def edgesDetectionFinal(input_img):
     return img_edges
 
 
-def segmentDetectorFinal(input_img):
+def segmentDetectorFinal(input_img, dataset=None):
     """
     The segment detector chosen finally after comparing the different candidates
     :param input_img: [np.array] The input image
+           dataset:   [str] The dataset from which the image origins from the list ['sudoku'].
     :return:    img_edges       [np.array] the image with the edges
                 lines_p:        [numpy array of shape (num seg x 1 x 4)] Array containing the coordinates of the first and second
                                 endpoint of segment of line.
@@ -301,9 +303,38 @@ def segmentDetectorFinal(input_img):
     # Note : pour le lsd, il suffira de mettre img_edges = edgesDetectionFinal(input_img) et d'ensuite obtenir les trois autres return
     # (donc utiliser le img_edges et les lines_p pour former img_edges_segment comme ligne 95
     #Le img_segment doit être une image greyscale pour la classification
+    
+    if not dataset is None: # particular dataset used
+        if dataset == 'sudoku':
+            img_edges = ed.canny_median_blur(input_img, downsize=False)
+            lines, img_segment, img_points = LSD.lsd_alg(img, line_width=1, fuse=True, dTheta=1 / 360 * np.pi * 2,
+                                                         dRho=8)
+            lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
+            
+            # Add segment detected to the edges image
+            img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
+            if lines is not None:
+                for i in range(0, len(lines)):
+                    line = lines[i][0]
+                    cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]), (0, 0, 255), 1)
+            
+            return img_edges, lines, img_edges_segment, img_segment
+                                                         
     return segHough(input_img, edgesDetectionFinal)
 
-
+if __name__ == "__main__":
+    img = cv2.imread("image_database/sudoku/sudoku_00014.png")
+    img_edges, lines, img_edges_segment, img_segment = segmentDetectorFinal(img, 'sudoku')
+    img_edges2, lines2, img_edges_segment2, img_segment2 = segmentDetectorFinal(img)
+    
+    cv2.imshow("Original", img)
+    cv2.imshow(f"LSD - {len(lines)} segments", img_edges_segment)
+    cv2.imshow(f"LSD - {len(lines)} segments - seg", img_segment)
+    cv2.imshow(f"Hough - {len(lines)} segments", img_edges_segment2)
+    cv2.imshow(f"Hough - {len(lines)} segments - seg", img_segment2)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 # if __name__ == "__main__":
 #     img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
 #
