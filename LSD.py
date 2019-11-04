@@ -4,13 +4,18 @@ from pylsd.lsd import lsd              # LSD.py python binding
 import math                            # Convert radian to degree
 from sklearn.cluster import AgglomerativeClustering  # Hierarchical clustering
 from scipy.spatial import distance  # Euclidean distance computation
+from segment_detector import fuseCloseSegment
 
 
-def lsd_alg(color_image, line_width=0):
+def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2):
     """
     LSD algoritm for line segment detection
     :param color_image: [np.array] The input image in BGR mode
             line_width: override line width during drawing result
+           fuse:   [bool] Whether to fuse together the segments detected
+           dTheta: [float] The max difference in theta between two segments to be fused together
+           dRho:   [float] The max difference in rho between two segments to be fused together
+           maxL:   [int] The maximal number of lines fused together. Set to 0 for no limit.
     :return:    lines: [np.array] (nb_lines, 4) each element of the array corresponds to [pt1_x, pt1_y, pt2_x, pt2_y] in DOUBLES
 		        result_lines: [np.array] BGR images with red lines representing LSD result
                 result_points: [np.array] BGR images with red dots representing LSD result
@@ -20,6 +25,13 @@ def lsd_alg(color_image, line_width=0):
     result_lines = np.zeros(gray_image.shape + (3,))  # Black RGB image with same height/width than gray-image
     result_points = np.zeros(gray_image.shape + (3,))
     lines = lsd(gray_image)  # python script calling the C++ so library
+    
+    # Fuse lines if asked
+    if fuse:
+        lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
+        lines = fuseCloseSegment(lines, dTheta, dRho, 4)
+        lines = lines.reshape((lines.shape[0],lines.shape[2]))
+    
 
     for i in range(lines.shape[0]):
         pt1 = (int(lines[i, 0]), int(lines[i, 1]))
@@ -61,7 +73,7 @@ def lsd_getAxis(color_image):
         # The y axis is invert compare to the cartesian one (invert pt1 and pt2 for y)
         if pt2[0] - pt1[0] >= 0:
             for j in range(int(np.ceil(15 * distance.euclidean(pt1, pt2)/distance.euclidean((0, 0), gray_image.shape)))):
-                deltas.append([pt2[0] - pt1[0], pt1[1] - pt2[1]])
+                deltas.append([pt2[0] -  pt1[0], pt1[1] - pt2[1]])
                 deltas_points.append((pt1, pt2))
         else:
             for j in range(int(np.ceil(15 * distance.euclidean(pt1, pt2)/distance.euclidean((0, 0), gray_image.shape)))):
@@ -87,3 +99,17 @@ def lsd_getAxis(color_image):
         final_result.append(math.degrees(np.arctan(clusters_result[j][1] / clusters_result[j][0])))
 
     return final_result, clusters_nb_elem  # Lines over a Black background
+    
+if __name__ == "__main__":
+    img = cv2.imread("image_database/sudoku/sudoku_00014.png")
+    lines, result_lines, result_points = lsd_alg(img, line_width=1)
+    
+    cv2.imshow("Original", img)
+    cv2.imshow(f"LSD - {len(lines)} segments", result_lines)
+    
+    for i in range(1):
+    	lines2, result_lines2, result_points2 = lsd_alg(img, line_width=1, fuse=True, dTheta=1 / 360 * np.pi * 2, dRho=8+i)
+    	cv2.imshow(f"LSD - {len(lines2)} segments - Fused - {(1+i)}", result_lines2)
+    
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()

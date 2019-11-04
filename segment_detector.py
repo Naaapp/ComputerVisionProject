@@ -202,7 +202,7 @@ def fromHoughSpaceVariant(abHS):
     return retList
 
 
-def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
+def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
     """
     Fuse close segments together.
     @Args:
@@ -210,15 +210,24 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
                 endpoint of segment of line. (Considering the origin in top left and values in order [v1, h1, v2, h2].)
         dTheta: [float] The max difference in theta between two segments to be fused together
         dRho:   [float] The max difference in rho between two segments to be fused together
+        maxL:   [int] The maximal number of lines fused together. Set to 0 for no limit.
     @Return:
         The list of segment with close segments fused together.
     """
     abHS = toHoughSpaceVariant(AB)
     i = 0
-
+    length = len(abHS)
+    cnt = 1 # Count of max line fused together
+	
     while True:
         if i == len(abHS):
             break
+        elif i == length: # another line has been fused
+        	cnt += 1
+        	length = len(abHS)
+        	i = 0
+        	if cnt == maxL:
+        		break
 
         seg1 = abHS[i]
         removeI = False
@@ -236,8 +245,10 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
                 d2 = seg2[3]
 
                 # Check second condition (position of segments on the lines)
-                if ((p1 <= p2 and p1 + d1 > p2) or
-                        (p2 <= p1 and p2 + d2 > p1)):
+                if ((p1-dRho/2 <= p2 and p1 + d1 + dRho/2 > p2) or
+                    (p1 <= p2 and p1 + d1 + dRho > p2) or
+                    (p2-dRho/2 <= p1 and p2 + d2 + dRho/2 > p1) or
+                    (p2 <= p1 and p2 + d2 + dRho > p1)):
                     removeI = True
 
                     newTheta = (seg1[0] + seg2[0]) / 2
@@ -247,16 +258,19 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2):
 
                     toAdd.append([newTheta, newRho, newP, newD])
                     toRemove.append(seg2)
+                    break
 
         # increment new seg to check
         if removeI:
             abHS.remove(seg1)
+            length -= 1
         else:
             i += 1
 
         # Add new fused segment and remove previous ones
         for seg in toRemove:
             abHS.remove(seg)
+            length -= 1
         for seg in toAdd:
             abHS.append(seg)
 
