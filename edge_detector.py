@@ -182,16 +182,3 @@ def sobel(input_img, dx=1, dy=1, kernel_size=3):
     """
     return cv2.Sobel(input_img, cv2.CV_8U, dx, dy, kernel_size)
 
-# # Tests
-# if __name__ == "__main__":
-#     img = cv2.imread("image_database/Road.png", cv2.IMREAD_GRAYSCALE)
-#
-#     # cv2.imshow("Original", img)
-#     # cv2.imshow("Beucher", gradientOfBeucher(img))
-#     cv2.imshow("Canny", canny_vanilla(img))
-#     cv2.imshow("Canny2", canny_median_blur(img))
-#     # cv2.imshow("NL_Lap", nonLinearLaplacian(img))
-#     # cv2.imshow("Sobel", sobel(img))
-#
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()

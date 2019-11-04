@@ -326,30 +326,3 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                                                          
     return segHough(input_img, edgesDetectionFinal, lineWidth)
 
-if __name__ == "__main__":
-    img = cv2.imread("image_database/sudoku/sudoku_00014.png")
-    img_edges, lines, img_edges_segment, img_segment = segmentDetectorFinal(img, 'sudoku')
-    img_edges2, lines2, img_edges_segment2, img_segment2 = segmentDetectorFinal(img)
-    
-    cv2.imshow("Original", img)
-    cv2.imshow(f"LSD - {len(lines)} segments", img_edges_segment)
-    cv2.imshow(f"LSD - {len(lines)} segments - seg", img_segment)
-    cv2.imshow(f"Hough - {len(lines)} segments", img_edges_segment2)
-    cv2.imshow(f"Hough - {len(lines)} segments - seg", img_segment2)
-    
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-# if __name__ == "__main__":
-#     img = cv2.imread("image_database/Building.png", cv2.IMREAD_GRAYSCALE)
-#
-#     _, lines, segWithEdge, seg = segHough(img, edgesDetectionFinal)
-#     _, lines2, segWithEdge2, seg2 = segHough(img, edgesDetectionFinal,
-#                                              fuse=True)
-#
-#     cv2.imshow("Original", segWithEdge)
-#     cv2.imshow("Original - fused", segWithEdge2)
-#     cv2.imshow("Segment detection - Variant of Hough transform", seg)
-#     cv2.imshow("Segment detection - Variant of Hough transform - Fused", seg2)
-#
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()

@@ -100,16 +100,3 @@ def lsd_getAxis(color_image):
 
     return final_result, clusters_nb_elem  # Lines over a Black background
     
-if __name__ == "__main__":
-    img = cv2.imread("image_database/sudoku/sudoku_00014.png")
-    lines, result_lines, result_points = lsd_alg(img, line_width=1)
-    
-    cv2.imshow("Original", img)
-    cv2.imshow(f"LSD - {len(lines)} segments", result_lines)
-    
-    for i in range(1):
-    	lines2, result_lines2, result_points2 = lsd_alg(img, line_width=1, fuse=True, dTheta=1 / 360 * np.pi * 2, dRho=8+i)
-    	cv2.imshow(f"LSD - {len(lines2)} segments - Fused - {(1+i)}", result_lines2)
-    
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
