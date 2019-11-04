@@ -104,7 +104,7 @@ def canny_gaussian_blur_downsize(input_img, lo_thresh=0, hi_thresh=0,
                      apertureSize=sobel_size, L2gradient=True)
 
 
-def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
+def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3, downsize=True):
     """
     Apply the canny method to the image (with median blur pre-processing)
     :param input_img:         [np.array] The input image in gray (shape = (? x ?))
@@ -114,6 +114,7 @@ def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
                         gradient more than this value are sure to be edges
     :param sobel_size:  [int] Size of the Sobel kernel used
                         to get first derivative
+    :param downsize:   [bool] whether to downsize the image or not
     :return:            [np.array] the image containing the local edge points
     """
 
@@ -123,7 +124,10 @@ def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
     # Divide the size by 2
     i_reduc_factor = 2
     i_start = i_reduc_factor // 2
-    img = img_filt[i_start::i_reduc_factor, i_start::i_reduc_factor]
+    if downsize:
+    	img = img_filt[i_start::i_reduc_factor, i_start::i_reduc_factor]
+    else:
+    	img = img_filt
 
     # If no threshold specified, use the computed median
     if lo_thresh == 0 and hi_thresh == 0:
@@ -178,16 +182,3 @@ def sobel(input_img, dx=1, dy=1, kernel_size=3):
     """
     return cv2.Sobel(input_img, cv2.CV_8U, dx, dy, kernel_size)
 
-# # Tests
-# if __name__ == "__main__":
-#     img = cv2.imread("image_database/Road.png", cv2.IMREAD_GRAYSCALE)
-#
-#     # cv2.imshow("Original", img)
-#     # cv2.imshow("Beucher", gradientOfBeucher(img))
-#     cv2.imshow("Canny", canny_vanilla(img))
-#     cv2.imshow("Canny2", canny_median_blur(img))
-#     # cv2.imshow("NL_Lap", nonLinearLaplacian(img))
-#     # cv2.imshow("Sobel", sobel(img))
-#
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()

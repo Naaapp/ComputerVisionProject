@@ -50,7 +50,15 @@ temp = os.path.abspath(str(np.random.randint(1, 1000000)) + 'ntl.txt').replace('
 lsdlib.lsdGet(src, ctypes.c_int(rows), ctypes.c_int(cols), ctypes.c_char_p(temp))
 ```
 
-- Then we can launch the python script for installation
+- Then, we will launch the python script for installation. We need to use the python command corresponding to the wright anaconda environment variable or the python 3.6 command (Careful to the path set up for 'python' cmd)
+
+```bash
+path/to/Annaconda/environement/python setup.py install
+```
+
+
+
+- The openCV example from the git
 
 ```bash
 path/to/Annaconda/environement/python setup.py install
@@ -87,7 +95,7 @@ cv2.imwrite(os.path.join(folder, 'cv2_' + imgName.split('.')[0] + '.jpg'), src)
 [wikipedia : morphological gradient]:<https://en.wikipedia.org/wiki/Morphological_gradient>
 [OpenCV : morphological gradient]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html>
 [wikipedia : canny edge detector]:<https://en.wikipedia.org/wiki/Canny_edge_detector>
-[OpenCV : canny edge detector]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_canny/py_canny.html>
+[OpenCV : canny edge detector]:<https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_cany/py_canny.html>
 [Paper : Hough Transform Variant]:<https://jivp-eurasipjournals.springeropen.com/articles/10.1186/s13640-017-0180-7>
 [Wikipedia : Prewit]:<https://en.wikipedia.org/wiki/Prewitt_operator>
 [Edge detection comparing methods]:<https://medium.com/@nikatsanka/comparing-edge-detection-methods-638a2919476e>

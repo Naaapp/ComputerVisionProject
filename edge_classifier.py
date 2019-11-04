@@ -25,17 +25,3 @@ def edge_classifier(input_img):
     img_line_edges = np.multiply(img_edges, img_segment)*255
     img_not_line_edges = img_edges - img_line_edges
     return img_edges_segment, img_edges, img_line_edges, img_not_line_edges
-
-
-# if __name__ == "__main__":
-#     img = cv2.imread("tutorial/Images/boat.png", cv2.IMREAD_GRAYSCALE)
-#     seg, edges, line_edges, not_line_edges = edge_classifier(img)
-#
-#     cv2.imshow("Segment classification : segment detected by the segment "
-#                "detector ", seg)
-#     cv2.imshow("Segment classification : edges ", edges)
-#     cv2.imshow("Segment classification : edges from line", line_edges)
-#     cv2.imshow("Segment classification : edges not from line",
-#                not_line_edges)
-#     cv2.waitKey(0)
-#     cv2.destroyAllWindows()
