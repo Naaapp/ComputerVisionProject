@@ -74,6 +74,10 @@ def canny_gaussian_blur_downsize(input_img, lo_thresh=0, hi_thresh=0,
     Apply the canny method to the image (with gaussian blur
     and downsizing pre-processing)
     :param input_img:         [np.array] The input image.
+    :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
+                        gradient lower than this value are sure to be non-edges
+    :param hi_thresh:   [int] High Threshold : Any edges with intensity
+                        gradient more than this value are sure to be edges
     :param sobel_size:  [int] Size of the Sobel kernel used
                         to get first derivative
     :return:            [np.array] the image containing the local edge points
