@@ -340,4 +340,28 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                           
                 return img_edges, lines, img_edges_segment, img_segment
 
+        if dataset == 'soccer':
+            img_edges = ed.canny_median_blur(input_img, downsize=False)
+            hsv = cv2.cvtColor(input_img, cv2.COLOR_BGR2HSV)
+            low = np.array([30, 0, 150])
+            upp = np.array([90, 70, 255])
+            mask = cv2.inRange(hsv, low, upp)
+            img_mask = cv2.bitwise_and(input_img, input_img, mask=mask)
+            ret = cv2.cvtColor(img_mask, cv2.COLOR_HSV2BGR)
+            # LSD
+            lines, img_segment, img_edges_segment = LSD.lsd_alg(ret)
+            return img_edges, lines, img_segment, img_edges_segment
+        if dataset == 'road':
+            img2, lines2, segWithEdge2, seg2 = sd.segHough(road[i],
+                                                           sd.edgesDetectionFinal,
+                                                           rho=1,
+                                                           theta=np.pi / 180,
+                                                           thresh=20,
+                                                           minLineLen=15,
+                                                           maxLineGap=4,
+                                                           kSize=2, fuse=True,
+                                                           dTheta=1 / 360 * np.pi * 2,
+                                                           dRho=2)
+            return img2, lines2, segWithEdge2, seg2
+
     return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
