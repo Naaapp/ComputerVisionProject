@@ -7,7 +7,7 @@ from scipy.spatial import distance  # Euclidean distance computation
 import segment_detector as sd          # A segment detector
 
 
-def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2):
+def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=4):
     """
     LSD algoritm for line segment detection
     :param color_image: [np.array] The input image in BGR mode
@@ -29,7 +29,7 @@ def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, d
     # Fuse lines if asked
     if fuse:
         lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
-        lines = sd.fuseCloseSegment(lines, dTheta, dRho, 4)
+        lines = sd.fuseCloseSegment(lines, dTheta, dRho, maxL)
         lines = lines.reshape((lines.shape[0],lines.shape[2]))
     
 

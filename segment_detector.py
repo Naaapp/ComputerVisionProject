@@ -317,7 +317,8 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                                                          line_width=lineWidth,
                                                          fuse=True,
                                                          dTheta=1 / 360 * np.pi * 2,
-                                                         dRho=8)
+                                                         dRho=8, 
+                                                         maxL=4)
             lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
 
             # Add segment detected to the edges image
