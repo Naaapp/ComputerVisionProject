@@ -7,6 +7,7 @@ def import_images():
     sudokuBgr = []
     soccer = []
     road = []
+    roadBgr = []
     pcb = []
     building = []
     buildingBgr = []
@@ -35,6 +36,7 @@ def import_images():
         ".png")])  # ref : https://www.geeksforgeeks.org/python-create-video-using-multiple-images-using-opencv/
     for name in roadNames:
         road.append(cv2.imread(roadFolder + '/' + name, cv2.IMREAD_GRAYSCALE))
+        roadBgr.append(cv2.imread(roadFolder + '/' + name))
 
     buildingNames = sorted([img for img in os.listdir(buildingFolder) if
                             img.endswith(
@@ -49,4 +51,4 @@ def import_images():
     for name in pcbNames:
         pcb.append(cv2.imread(pcbFolder + '/' + name, cv2.IMREAD_GRAYSCALE))
 
-    return sudoku, sudokuBgr, soccer, road, pcb, building, buildingBgr
+    return sudoku, sudokuBgr, soccer, road, roadBgr, pcb, building, buildingBgr, sudokuNames, sudokuNames, soccerNames, roadNames, pcbNames, buildingNames
