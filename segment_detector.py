@@ -349,6 +349,7 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
             # LSD
             lines, img_segment, img_points = LSD.lsd_alg(ret)
             lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
+            lines = np.around(lines).astype(int)
 
             # Add segment detected to the edges image
             img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
@@ -361,18 +362,16 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
             return img_edges, lines, img_edges_segment, img_segment
 
         if dataset == 'road':
-            return segHough(input_img, edgesDetectionFinal, rho=1,
+            return segHough(input_img, ed.edgesDetectionFinal, rho=1,
                             theta=np.pi / 180, thresh=20, minLineLen=15,
                             maxLineGap=4, kSize=2, fuse=True,
                             dTheta=1 / 360 * np.pi * 2, dRho=2,
                             lineWidth=lineWidth)
         if dataset == 'building':
-            return segHough(input_img, edgesDetectionFinal, rho=1,
+            return segHough(input_img, ed.edgesDetectionFinal, rho=1,
                             theta=np.pi / 180, thresh=20, minLineLen=15,
                             maxLineGap=4, kSize=2, fuse=True,
                             dTheta=1 / 360 * np.pi * 2, dRho=2,
                             lineWidth=lineWidth)
-
-    return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
 
     return segHough(input_img, ed.edgesDetectionFinal, lineWidth=lineWidth)
