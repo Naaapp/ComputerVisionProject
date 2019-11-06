@@ -48,7 +48,7 @@ def canny_gaussian_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
     :return:            [np.array] the image containing the local edge points
     """
 
-    i_gaus_kernel_size = 11
+    i_gaus_kernel_size = 5
     img_filt = cv2.GaussianBlur(input_img, (i_gaus_kernel_size,
                                             i_gaus_kernel_size), 0)
 
@@ -129,9 +129,9 @@ def canny_median_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3, downsiz
     i_reduc_factor = 2
     i_start = i_reduc_factor // 2
     if downsize:
-    	img = img_filt[i_start::i_reduc_factor, i_start::i_reduc_factor]
+        img = img_filt[i_start::i_reduc_factor, i_start::i_reduc_factor]
     else:
-    	img = img_filt
+        img = img_filt
 
     # If no threshold specified, use the computed median
     if lo_thresh == 0 and hi_thresh == 0:
@@ -185,4 +185,3 @@ def sobel(input_img, dx=1, dy=1, kernel_size=3):
     """
     """
     return cv2.Sobel(input_img, cv2.CV_8U, dx, dy, kernel_size)
-
