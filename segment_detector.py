@@ -11,7 +11,8 @@ import random
 
 def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
              minLineLen=5, maxLineGap=0, kSize=2,
-             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=3, dilate=True):
+             fuse=False, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=3,
+             lineWidth=1, dilate=True):
     """
     Apply the segment detection by preprocessing the image with the edge detection and using the Probabilistic Hough 
     Transform.
@@ -46,14 +47,16 @@ def segHough(input_img, fctEdges, rho=1, theta=np.pi / 180, thresh=50,
     # Dilate edges
     if dilate:
         kernel = np.ones((kSize, kSize), np.uint8)
-        img_edges = cv2.dilate(img_edges, kernel, borderType=cv2.BORDER_CONSTANT,
+        img_edges = cv2.dilate(img_edges, kernel,
+                               borderType=cv2.BORDER_CONSTANT,
                                iterations=1)
 
     # Detect segments of lines
     lines_p, img_edges_segment, img_segment = hough(img_edges, rho, theta,
                                                     thresh, minLineLen,
                                                     maxLineGap, fuse,
-                                                    dTheta, dRho)
+                                                    dTheta, dRho, maxL,
+                                                    lineWidth)
 
     return img_edges, lines_p, img_edges_segment, img_segment
 
@@ -90,7 +93,8 @@ def hough(input_img, rho=1, theta=np.pi / 180, thresh=50, minLineLen=5,
     img_segment = input_img * 0
 
     # Detect segment of lines
-    lines_p = cv2.HoughLinesP(input_img, rho=rho, theta=theta, threshold=thresh,
+    lines_p = cv2.HoughLinesP(input_img, rho=rho, theta=theta,
+                              threshold=thresh,
                               minLineLength=minLineLen,
                               maxLineGap=maxLineGap)
 
@@ -221,12 +225,12 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
     abHS = toHoughSpaceVariant(AB)
     i = 0
     length = len(abHS)
-    cnt = 1 # Count of max line fused together
-    
+    cnt = 1  # Count of max line fused together
+
     while True:
         if i == len(abHS):
             break
-        elif i == length: # another line has been fused
+        elif i == length:  # another line has been fused
             cnt += 1
             length = len(abHS)
             i = 0
@@ -249,10 +253,10 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
                 d2 = seg2[3]
 
                 # Check second condition (position of segments on the lines)
-                if ((p1-dRho/2 <= p2 and p1 + d1 + dRho/2 > p2) or
-                    (p1 <= p2 and p1 + d1 + dRho > p2) or
-                    (p2-dRho/2 <= p1 and p2 + d2 + dRho/2 > p1) or
-                    (p2 <= p1 and p2 + d2 + dRho > p1)):
+                if ((p1 - dRho / 2 <= p2 and p1 + d1 + dRho / 2 > p2) or
+                        (p1 <= p2 and p1 + d1 + dRho > p2) or
+                        (p2 - dRho / 2 <= p1 and p2 + d2 + dRho / 2 > p1) or
+                        (p2 <= p1 and p2 + d2 + dRho > p1)):
                     removeI = True
 
                     newTheta = (seg1[0] + seg2[0]) / 2
@@ -288,7 +292,7 @@ def edgesDetectionFinal(input_img):
     :return:    [np.array] The image containing the local edge points
     """
     img_edges = ed.canny_median_blur(input_img)
-    #img_edges = ed.canny_gaussian_blur_downsize(input_img)
+    # img_edges = ed.canny_gaussian_blur_downsize(input_img)
     return img_edges
 
 
@@ -304,25 +308,26 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                 img_edges_segment:  [np.array] the image of the segment detected with the edges detected previously
                 img_segment:        [np.array] the image of the segments detected only
     """
-    # Note : pour le lsd, il suffira de mettre img_edges = edgesDetectionFinal(input_img) et d'ensuite obtenir les trois autres return
-    # (donc utiliser le img_edges et les lines_p pour former img_edges_segment comme ligne 95
-    #Le img_segment doit être une image greyscale pour la classification
-    
-    if not dataset is None: # particular dataset used
+    # Le img_segment doit être une image greyscale pour la classification
+
+    if not dataset is None:  # particular dataset used
         if dataset == 'sudoku':
             img_edges = ed.canny_median_blur(input_img, downsize=False)
-            lines, img_segment, img_points = LSD.lsd_alg(input_img, line_width=lineWidth, fuse=True, 
-                                                         dTheta=1 / 360 * np.pi * 2, dRho=8)
-            lines = lines.reshape((lines.shape[0],1,lines.shape[1]))
-            
+            lines, img_segment, img_points = LSD.lsd_alg(input_img,
+                                                         line_width=lineWidth,
+                                                         fuse=True,
+                                                         dTheta=1 / 360 * np.pi * 2,
+                                                         dRho=8)
+            lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
+
             # Add segment detected to the edges image
             img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
             if lines is not None:
                 for i in range(0, len(lines)):
                     line = lines[i][0]
-                    cv2.line(img_edges_segment, (line[0], line[1]), (line[2], line[3]), (0, 0, 255), lineWidth)
-            
-            return img_edges, lines, img_edges_segment, img_segment
-                                                         
-    return segHough(input_img, edgesDetectionFinal, lineWidth)
+                    cv2.line(img_edges_segment, (line[0], line[1]),
+                             (line[2], line[3]), (0, 0, 255), lineWidth)
 
+            return img_edges, lines, img_edges_segment, img_segment
+
+    return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
