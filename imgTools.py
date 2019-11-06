@@ -20,7 +20,7 @@ def display(title, img, width=15, height=15):
 
     # Display using pyplot instead of cv2 because it might cause the jupyter notebook to crash.
     plt.figure(figsize = (width, height))
-    fig = plt.imshow(imgRgb)
+    fig = plt.imshow(imgRgb.astype(np.uint8))
     fig.axes.get_xaxis().set_visible(False)
     fig.axes.get_yaxis().set_visible(False)
     plt.title(title)
@@ -53,7 +53,7 @@ def multiDisplay(titles, imgs, imgPerLine, width=15, height=15):
             else: # Gray to RGB
                 imgRgb = cv2.cvtColor(imgs[tot], cv2.COLOR_GRAY2RGB)
                     
-            plt.imshow(imgRgb)
+            plt.imshow(imgRgb.astype(np.uint8))
             plt.title(titles[tot])
             fig.axes[tot].get_xaxis().set_visible(False)
             fig.axes[tot].get_yaxis().set_visible(False)
