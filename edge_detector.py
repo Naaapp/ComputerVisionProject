@@ -180,3 +180,13 @@ def edgesNLL(img):
                                              cv2.THRESH_BINARY)
 
     return img_thresh
+
+def edgesDetectionFinal(input_img):
+    """
+    The edge detector chosen finally after comparing the different candidates
+    :param input_img: [np.array] The input image
+    :return:    [np.array] The image containing the local edge points
+    """
+    img_edges = canny_median_blur(input_img)
+    # img_edges = ed.canny_gaussian_blur_downsize(input_img)
+    return img_edges

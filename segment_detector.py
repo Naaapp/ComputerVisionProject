@@ -285,17 +285,6 @@ def fuseCloseSegment(AB, dTheta=2 / 360 * np.pi * 2, dRho=2, maxL=0):
     return fromHoughSpaceVariant(abHS)
 
 
-def edgesDetectionFinal(input_img):
-    """
-    The edge detector chosen finally after comparing the different candidates
-    :param input_img: [np.array] The input image
-    :return:    [np.array] The image containing the local edge points
-    """
-    img_edges = ed.canny_median_blur(input_img)
-    # img_edges = ed.canny_gaussian_blur_downsize(input_img)
-    return img_edges
-
-
 def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
     """
     The segment detector chosen finally after comparing the different candidates
@@ -332,12 +321,30 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
             return img_edges, lines, img_edges_segment, img_segment
             
         if dataset == 'pcb':
-                img_edges = ed.canny_gaussian_blur_downsize(input_img, lo_thresh=150, hi_thresh=200,
-                                     sobel_size=3,i_gaus_kernel_size=5,gauss_center = 1)
+            img_edges = ed.canny_gaussian_blur_downsize(input_img, lo_thresh=150, hi_thresh=200,
+                                                        sobel_size=3,i_gaus_kernel_size=5,gauss_center = 1)
 
-                lines, img_edges_segment,img_segment = hough(img_edges, 1, np.pi/180,  thresh=10, minLineLen=7,maxLineGap=3,
-                          fuse=True, dTheta=3 / 360 * np.pi * 2,dRho=3, maxL=3, lineWidth=lineWidth)
-                          
-                return img_edges, lines, img_edges_segment, img_segment
+            lines, img_edges_segment,img_segment = hough(img_edges, 1, np.pi/180,  thresh=10, minLineLen=7,maxLineGap=3,
+                                                         fuse=True, dTheta=3 / 360 * np.pi * 2,dRho=3, maxL=3,
+                                                         lineWidth=lineWidth)
 
-    return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
+            return img_edges, lines, img_edges_segment, img_segment
+                
+        if dataset == 'soccer':
+            hsv = cv2.cvtColor(input_img, cv2.COLOR_BGR2HSV)
+            low = np.array([30, 0, 150])
+            upp = np.array([90, 70, 255])
+            mask = cv2.inRange(hsv, low, upp)
+            img_mask = cv2.bitwise_and(input_img, input_img, mask=mask)
+            ret = cv2.cvtColor(img_mask, cv2.COLOR_HSV2BGR)
+            # LSD
+            lines, img_segment, img_edges_segment  = LSD.lsd_alg(ret)
+            return None, lines, img_segment, img_edges_segment
+            
+        if dataset == 'road':
+            img2, lines2, segWithEdge2, seg2 = segHough(input_img, ed.edgesDetectionFinal, rho=1, 
+                                                           theta=np.pi / 180, thresh=20, minLineLen=15, maxLineGap=4,
+                                                           kSize=2, fuse=True, dTheta=1/360*np.pi*2, dRho = 2)
+            return img2, lines2, segWithEdge2, seg2
+
+    return segHough(input_img, ed.edgesDetectionFinal, lineWidth=lineWidth)
