@@ -361,17 +361,46 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
 
             return img_edges, lines, img_edges_segment, img_segment
 
-        if dataset == 'road':
-            return segHough(input_img, ed.edgesDetectionFinal, rho=1,
-                            theta=np.pi / 180, thresh=20, minLineLen=15,
-                            maxLineGap=4, kSize=2, fuse=True,
-                            dTheta=1 / 360 * np.pi * 2, dRho=2,
-                            lineWidth=lineWidth)
+        if dataset == 'road':                            
+            img_edges = ed.edgesDetectionFinal(input_img)
+            lines, img_segment, img_points = LSD.lsd_alg(input_img,
+                                                         line_width=lineWidth,
+                                                         fuse=True,
+                                                         dTheta=1 / 360 * np.pi * 2,
+                                                         dRho=5,
+                                                         maxL=4)
+            lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
+            lines = np.around(lines).astype(int)
+
+            # Add segment detected to the edges image
+            img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
+            if lines is not None:
+                for i in range(0, len(lines)):
+                    line = lines[i][0]
+                    cv2.line(img_edges_segment, (line[0], line[1]),
+                             (line[2], line[3]), (0, 0, 255), lineWidth)
+
+            return img_edges, lines, img_edges_segment, img_segment
+            
         if dataset == 'building':
-            return segHough(input_img, ed.edgesDetectionFinal, rho=1,
-                            theta=np.pi / 180, thresh=20, minLineLen=15,
-                            maxLineGap=4, kSize=2, fuse=True,
-                            dTheta=1 / 360 * np.pi * 2, dRho=2,
-                            lineWidth=lineWidth)
+            img_edges = ed.edgesDetectionFinal(input_img)
+            lines, img_segment, img_points = LSD.lsd_alg(input_img,
+                                                         line_width=lineWidth,
+                                                         fuse=True,
+                                                         dTheta=1 / 360 * np.pi * 2,
+                                                         dRho=2,
+                                                         maxL=4)
+            lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
+            lines = np.around(lines).astype(int)
+
+            # Add segment detected to the edges image
+            img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
+            if lines is not None:
+                for i in range(0, len(lines)):
+                    line = lines[i][0]
+                    cv2.line(img_edges_segment, (line[0], line[1]),
+                             (line[2], line[3]), (0, 0, 255), lineWidth)
+
+            return img_edges, lines, img_edges_segment, img_segment
 
     return segHough(input_img, ed.edgesDetectionFinal, lineWidth=lineWidth)
