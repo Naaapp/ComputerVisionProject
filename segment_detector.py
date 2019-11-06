@@ -297,8 +297,6 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                 img_edges_segment:  [np.array] the image of the segment detected with the edges detected previously
                 img_segment:        [np.array] the image of the segments detected only
     """
-    # Le img_segment doit être une image greyscale pour la classification
-
     if not dataset is None:  # particular dataset used
         if dataset == 'sudoku':
             img_edges = ed.canny_median_blur(input_img, downsize=False)
@@ -360,7 +358,7 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                     cv2.line(img_edges_segment, (line[0], line[1]),
                              (line[2], line[3]), (0, 0, 255), lineWidth)
 
-            return img_edges, lines, img_segment, img_edges_segment
+            return img_edges, lines, img_edges_segment, img_segment
 
         if dataset == 'road':
             return segHough(input_img, edgesDetectionFinal, rho=1,
