@@ -330,5 +330,14 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                              (line[2], line[3]), (0, 0, 255), lineWidth)
 
             return img_edges, lines, img_edges_segment, img_segment
+            
+        if dataset == 'pcb':
+                img_edges = ed.canny_gaussian_blur_downsize(input_img, lo_thresh=150, hi_thresh=200,
+                                     sobel_size=3,i_gaus_kernel_size=5,gauss_center = 1)
+
+                lines, img_edges_segment,img_segment = hough(img_edges, 1, np.pi/180,  thresh=10, minLineLen=7,maxLineGap=3,
+                          fuse=True, dTheta=3 / 360 * np.pi * 2,dRho=3, maxL=3, lineWidth=lineWidth)
+                          
+                return img_edges, lines, img_edges_segment, img_segment
 
     return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
