@@ -317,7 +317,7 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                                                          line_width=lineWidth,
                                                          fuse=True,
                                                          dTheta=1 / 360 * np.pi * 2,
-                                                         dRho=8, 
+                                                         dRho=8,
                                                          maxL=4)
             lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
 
@@ -330,15 +330,26 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
                              (line[2], line[3]), (0, 0, 255), lineWidth)
 
             return img_edges, lines, img_edges_segment, img_segment
-            
-        if dataset == 'pcb':
-                img_edges = ed.canny_gaussian_blur_downsize(input_img, lo_thresh=150, hi_thresh=200,
-                                     sobel_size=3,i_gaus_kernel_size=5,gauss_center = 1)
 
-                lines, img_edges_segment,img_segment = hough(img_edges, 1, np.pi/180,  thresh=10, minLineLen=7,maxLineGap=3,
-                          fuse=True, dTheta=3 / 360 * np.pi * 2,dRho=3, maxL=3, lineWidth=lineWidth)
-                          
-                return img_edges, lines, img_edges_segment, img_segment
+        if dataset == 'pcb':
+            img_edges = ed.canny_gaussian_blur_downsize(input_img,
+                                                        lo_thresh=150,
+                                                        hi_thresh=200,
+                                                        sobel_size=3,
+                                                        i_gaus_kernel_size=5,
+                                                        gauss_center=1)
+
+            lines, img_edges_segment, img_segment = hough(img_edges, 1,
+                                                          np.pi / 180,
+                                                          thresh=10,
+                                                          minLineLen=7,
+                                                          maxLineGap=3,
+                                                          fuse=True,
+                                                          dTheta=3 / 360 * np.pi * 2,
+                                                          dRho=3, maxL=3,
+                                                          lineWidth=lineWidth)
+
+            return img_edges, lines, img_edges_segment, img_segment
 
         if dataset == 'soccer':
             img_edges = ed.canny_median_blur(input_img, downsize=False)
@@ -349,19 +360,30 @@ def segmentDetectorFinal(input_img, dataset=None, lineWidth=2):
             img_mask = cv2.bitwise_and(input_img, input_img, mask=mask)
             ret = cv2.cvtColor(img_mask, cv2.COLOR_HSV2BGR)
             # LSD
-            lines, img_segment, img_edges_segment = LSD.lsd_alg(ret)
+            lines, img_segment, img_points = LSD.lsd_alg(ret)
+            lines = lines.reshape((lines.shape[0], 1, lines.shape[1]))
+
+            # Add segment detected to the edges image
+            img_edges_segment = cv2.cvtColor(img_edges, cv2.COLOR_GRAY2BGR)
+            if lines is not None:
+                for i in range(0, len(lines)):
+                    line = lines[i][0]
+                    cv2.line(img_edges_segment, (line[0], line[1]),
+                             (line[2], line[3]), (0, 0, 255), lineWidth)
+
             return img_edges, lines, img_segment, img_edges_segment
+
         if dataset == 'road':
-            img2, lines2, segWithEdge2, seg2 = sd.segHough(road[i],
-                                                           sd.edgesDetectionFinal,
-                                                           rho=1,
-                                                           theta=np.pi / 180,
-                                                           thresh=20,
-                                                           minLineLen=15,
-                                                           maxLineGap=4,
-                                                           kSize=2, fuse=True,
-                                                           dTheta=1 / 360 * np.pi * 2,
-                                                           dRho=2)
-            return img2, lines2, segWithEdge2, seg2
+            return segHough(input_img, edgesDetectionFinal, rho=1,
+                            theta=np.pi / 180, thresh=20, minLineLen=15,
+                            maxLineGap=4, kSize=2, fuse=True,
+                            dTheta=1 / 360 * np.pi * 2, dRho=2,
+                            lineWidth=lineWidth)
+        if dataset == 'building':
+            return segHough(input_img, edgesDetectionFinal, rho=1,
+                            theta=np.pi / 180, thresh=20, minLineLen=15,
+                            maxLineGap=4, kSize=2, fuse=True,
+                            dTheta=1 / 360 * np.pi * 2, dRho=2,
+                            lineWidth=lineWidth)
 
     return segHough(input_img, edgesDetectionFinal, lineWidth=lineWidth)
