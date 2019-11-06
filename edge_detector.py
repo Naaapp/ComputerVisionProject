@@ -69,26 +69,27 @@ def canny_gaussian_blur(input_img, lo_thresh=0, hi_thresh=0, sobel_size=3):
 
 
 def canny_gaussian_blur_downsize(input_img, lo_thresh=0, hi_thresh=0,
-                                 sobel_size=3):
+                                 sobel_size=3,i_gaus_kernel_size = 3,gauss_center = 5):
     """
     Apply the canny method to the image (with gaussian blur
     and downsizing pre-processing)
     :param input_img:         [np.array] The input image.
-    :param lo_thresh:   [int] Low Threshold :  Any edges with intensity
-                        gradient lower than this value are sure to be non-edges
-    :param hi_thresh:   [int] High Threshold : Any edges with intensity
-                        gradient more than this value are sure to be edges
-    :param sobel_size:  [int] Size of the Sobel kernel used
-                        to get first derivative
+    :param lo_thresh:         [int] Low Threshold :  Any edges with intensity
+                              gradient lower than this value are sure to be non-edges
+    :param hi_thresh:         [int] High Threshold : Any edges with intensity
+                              gradient more than this value are sure to be edges
+    :param sobel_size:        [int] Size of the Sobel kernel used
+                              to get first derivative
+    :param i_gaus_kernel_size:[int] kernel size for Gaussian blur
+    :param gauss_center:      [int] center of Gaussian blur
     :return:            [np.array] the image containing the local edge points
     """
     # Downsize the image
     lower_img = cv2.pyrDown(input_img)
-
+    
     # Apply gaussian blur
-    i_gaus_kernel_size = 3
     img_filt = cv2.GaussianBlur(lower_img, (i_gaus_kernel_size,
-                                            i_gaus_kernel_size), 5)
+                                            i_gaus_kernel_size), gauss_center)
     # Upsize the image
     img = cv2.pyrUp(img_filt)
 
@@ -179,9 +180,3 @@ def edgesNLL(img):
                                              cv2.THRESH_BINARY)
 
     return img_thresh
-
-
-def sobel(input_img, dx=1, dy=1, kernel_size=3):
-    """
-    """
-    return cv2.Sobel(input_img, cv2.CV_8U, dx, dy, kernel_size)
