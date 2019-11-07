@@ -40,7 +40,7 @@ def lsd_alg(color_image, line_width=0, fuse=False, dTheta=2 / 360 * np.pi * 2, d
             width = lines[i, 4]
         else:
             width = line_width * 2
-        cv2.line(result_lines, pt1, pt2, (0, 0, 255), int(np.ceil(width / 2)))
+        cv2.line(result_lines, pt1, pt2, (255, 255, 255), int(np.ceil(width / 2)))
 
         if 0 <= pt1[0] < gray_image.shape[1] and 0 <= pt1[1] < gray_image.shape[0]:   # Some coordinates returned can be out of bounds
             result_points[pt1[1]][pt1[0]][2] = 255  # Add a red pixel for each end-point of a line
